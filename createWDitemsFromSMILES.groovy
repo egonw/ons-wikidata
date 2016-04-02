@@ -1,4 +1,19 @@
-smiles = "CCCC"
+paperQ = null // 
+paperQ = "Q22570477"
+smiles = "CC1=CC(=NC=C1)C"
+
+def upgradeChemFormula(formula) {
+  formula = formula.replace("0","₀");
+  formula = formula.replace("1","₁");
+  formula = formula.replace("2","₂");
+  formula = formula.replace("3","₃");
+  formula = formula.replace("4","₄");
+  formula = formula.replace("5","₅");
+  formula = formula.replace("6","₆");
+  formula = formula.replace("7","₇");
+  formula = formula.replace("8","₈");
+  formula = formula.replace("9","₉");
+}
 
 mol = cdk.fromSMILES(smiles)
 ui.open(mol)
@@ -23,13 +38,11 @@ if (bioclipse.isOnline()) {
   missing = true
 }
 
-formula = cdk.molecularFormula(mol)
+formula = upgradeChemFormula(cdk.molecularFormula(mol))
 
-// Create the Wikidata QuickStatement,
-// see https://tools.wmflabs.org/wikidata-todo/quick_statements.php
+// Create the Wikidata QuickStatement, see https://tools.wmflabs.org/wikidata-todo/quick_statements.php
 
-item = "LAST" // set to Qxxxx if you need to append info,
-              // e.g. item = "Q22579236"
+item = "LAST" // set to Qxxxx if you need to append info, e.g. item = "Q22579236"
 
 pubchemLine = ""
 if (bioclipse.isOnline()) {
@@ -40,15 +53,19 @@ if (bioclipse.isOnline()) {
   }
 }
 
+paperProv = ""
+if (paperQ != null) paperProv = "\tS248\t$paperQ"
+
 if (!missing) {
   println "===================="
-  println "Already in Wikidata as " + results.get(1,"compound")
+  println "$formula is already in Wikidata as " + results.get(1,"compound")
   println "===================="
 } else {
   statement = """
     CREATE
     
-    $item\tDen\t\"chemical compound\"
+    $item\tP31\tQ11173$paperProv
+    $item\tDen\t\"chemical compound\"$paperProv
     $item\tP233\t\"$smiles\"
     $item\tP274\t\"$formula\"
     $item\tP234\t\"$inchiShort\"
