@@ -1,6 +1,5 @@
-paperQ = null // 
-paperQ = "Q22570477"
-smiles = "CC1=CC(=NC=C1)C"
+paperQ = null // paperQ = "Q22570477"
+smiles = "CCCCNCCCC"
 
 def upgradeChemFormula(formula) {
   formula = formula.replace("0","₀");
@@ -34,6 +33,9 @@ if (bioclipse.isOnline()) {
     "https://query.wikidata.org/sparql", sparql
   )
   missing = results.rowCount == 0
+  if (!missing) {
+    existingQcode = results.get(1,"compound")
+  }
 } else {
   missing = true
 }
@@ -50,6 +52,24 @@ if (bioclipse.isOnline()) {
   if (pcResults.size == 1) {
     cid = pcResults[0]
     pubchemLine = "$item\tP662\t\"$cid\""
+	sparql = """
+	PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+	SELECT ?compound WHERE {
+	  ?compound wdt:P662 "$cid" .
+	}
+	"""
+	
+	if (bioclipse.isOnline()) {
+	  results = rdf.sparqlRemote(
+	    "https://query.wikidata.org/sparql", sparql
+	  )
+	  missing = results.rowCount == 0
+	  if (!missing) {
+  	    existingQcode = results.get(1,"compound")
+  	  }
+	} else {
+	  missing = true
+	}
   }
 }
 
@@ -58,7 +78,7 @@ if (paperQ != null) paperProv = "\tS248\t$paperQ"
 
 if (!missing) {
   println "===================="
-  println "$formula is already in Wikidata as " + results.get(1,"compound")
+  println "$formula is already in Wikidata as " + existingQcode
   println "===================="
 } else {
   statement = """
@@ -77,3 +97,4 @@ if (!missing) {
   println statement
   println "===================="
 }
+
