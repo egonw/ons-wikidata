@@ -1,11 +1,29 @@
 // Copyright (C) 2018  Egon Willighagen
 // License: MIT
 
-totalArticleCount = 15500000
+// Usage:
+//
+//   change the values of the following two variables. The first is the text string you
+//   wish to find in titles of articles in Wikidata, and the second is the actual Wikidata
+//   item of the concept.
+//
+//   The output of this script is a set of QuickStatements that can be uploaded here:
+//
+//     https://tools.wmflabs.org/quickstatements/
 
-batchSize = 500000
-concept = "MetaboLights"
-conceptQ = "Q24174701"
+concept = "digoxin"
+conceptQ = "Q422222"
+
+// the code (don't change)
+//
+// Changelog:
+//
+// 2018-09-01 First upload to MyExperiment.org
+
+concept = concept.toLowerCase()
+
+totalArticleCount = 17500000
+batchSize = 250000
 
 def renewFile(file) {
   if (ui.fileExists(file)) ui.remove(file)
@@ -34,10 +52,10 @@ rounds = (int)Math.ceil(totalArticleCount / batchSize)
     }
   """
   if (bioclipse.isOnline()) {
-    rawResults = bioclipse.sparqlRemote(
-      "https://query.wikidata.org/sparql", sparql
-    )
     try {
+      rawResults = bioclipse.sparqlRemote(
+        "https://query.wikidata.org/sparql", sparql
+      )
       results = rdf.processSPARQLXML(rawResults, sparql)
       missing = results.rowCount == 0
       if (!missing) {
@@ -53,7 +71,7 @@ rounds = (int)Math.ceil(totalArticleCount / batchSize)
         println "no hits"
       }
     } catch (Exception exception) {
-      println "Error while retrieving this batch: " + e.message
+      println "Error while retrieving this batch: " + exception.message
     }
   } else {
     println "no online access"
