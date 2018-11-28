@@ -1,4 +1,5 @@
 // Copyright (C) 2018  Egon Willighagen
+//               2018  Denise Slenter
 // License: MIT
 
 // Usage:
