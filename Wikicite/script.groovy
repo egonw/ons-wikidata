@@ -11,8 +11,13 @@
 //
 //     https://tools.wmflabs.org/quickstatements/
 
-concept = "digoxin"
-conceptQ = "Q422222"
+concept = "aflatoxin B1"
+conceptQ = "Q4689278"
+
+// the next is a list of false positives (all lower case)
+
+blacklist = [
+]
 
 // the code (don't change)
 //
@@ -22,7 +27,8 @@ conceptQ = "Q422222"
 
 concept = concept.toLowerCase()
 
-totalArticleCount = 17500000
+// totalArticleCount = 17500000
+totalArticleCount = 750000
 batchSize = 250000
 
 def renewFile(file) {
@@ -31,7 +37,7 @@ def renewFile(file) {
   return file
 }
 
-qsFile = "/Wikicite/output.quickstatements"
+qsFile = "/Wikicite/output." + concept.replace(" ", "_") + ".quickstatements"
 renewFile(qsFile)
 
 rounds = (int)Math.ceil(totalArticleCount / batchSize) 
@@ -60,13 +66,25 @@ rounds = (int)Math.ceil(totalArticleCount / batchSize)
       missing = results.rowCount == 0
       if (!missing) {
         println "found ${results.rowCount} article(s)!"
+        printlnOutput = ""
+        fileOutput = ""
         1.upto(results.rowCount) { artCounter ->
-          artIRI = results.get(artCounter, "art")
-          artQ = artIRI.substring(31)
-          println "${artQ}\t" + results.get(artCounter, "artLabel")
-          statement = "${artQ}\tP921\t${conceptQ}\n"
-          ui.append(qsFile, statement)
+          artTitle = results.get(artCounter, "artLabel")
+          blacklisted = false
+          blacklist.each { badWord ->
+            if (artTitle.toLowerCase().contains(badWord.toLowerCase())) {
+              blacklisted = true
+            }
+          }
+          if (!blacklisted) {
+            artIRI = results.get(artCounter, "art")
+            artQ = artIRI.substring(31)
+            printlnOutput += "${artQ}\t" + artTitle + "\n"
+            fileOutput += "${artQ}\tP921\t${conceptQ}\n"
+          }
         }
+        print(printlnOutput)
+        ui.append(qsFile, fileOutput)
       } else {
         println "no hits"
       }
