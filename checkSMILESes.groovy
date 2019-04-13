@@ -1,3 +1,12 @@
+@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.2-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.2-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.2-SNAPSHOT')
+
+workspaceRoot = System.properties['user.dir']
+ui = new net.bioclipse.managers.UIManager(workspaceRoot);
+cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
+rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
+
 identifier = "P233" // SMILES
 type = "smiles"
 
@@ -21,4 +30,4 @@ for (i=1; i<=mappings.rowCount; i++) {
   }
 }
 ui.append(outFilename, fileContent)
-ui.open(outFilename)
+// ui.open(outFilename)
