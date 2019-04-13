@@ -11,6 +11,10 @@
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
 //     https://tools.wmflabs.org/quickstatements/
+//
+// Changelog:
+//
+// 2018-09-01 First upload to MyExperiment.org
 
 concept = "aflatoxin B1"
 conceptQ = "Q4689278"
@@ -21,16 +25,12 @@ blacklist = [
 ]
 
 // the code (don't change)
-//
-// Changelog:
-//
-// 2018-09-01 First upload to MyExperiment.org
 
 concept = concept.toLowerCase()
 
-// totalArticleCount = 17500000
-totalArticleCount = 750000
-batchSize = 250000
+totalArticleCount = 20000000
+batchSize = 100000
+start = 0
 
 def renewFile(file) {
   if (ui.fileExists(file)) ui.remove(file)
@@ -41,20 +41,20 @@ def renewFile(file) {
 qsFile = "/Wikicite/output." + concept.replace(" ", "_") + ".quickstatements"
 renewFile(qsFile)
 
-rounds = (int)Math.ceil(totalArticleCount / batchSize) 
+rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
 1.upto(rounds) { counter ->
   print "batch ${counter}/${rounds}: "
-  offset = (counter-1)*batchSize
+  offset = start + (counter-1)*batchSize
   sparql = """
     SELECT ?art ?artLabel
     WITH {
       SELECT ?art WHERE {
-        ?art wdt:P31 wd:Q13442814  
+        ?art wdt:P31 wd:Q13442814
       } LIMIT $batchSize OFFSET $offset
-    } AS %RESULTS {
+    } AS %RESULTS { 
       INCLUDE %RESULTS
-      ?art wdt:P1476 ?artLabel .
       MINUS { ?art wdt:P921 wd:$conceptQ }
+      ?art wdt:P1476 ?artLabel .
       FILTER (contains(lcase(str(?artLabel)), "$concept"))
     }
   """
