@@ -2,7 +2,7 @@
 @Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.2-SNAPSHOT')
 @Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.2-SNAPSHOT')
 
-workspaceRoot = System.properties['user.dir']
+workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);

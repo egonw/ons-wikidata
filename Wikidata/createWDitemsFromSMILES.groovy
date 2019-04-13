@@ -26,7 +26,7 @@
   @Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.1'),
   @Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.1')
 ])
-workspaceRoot = "."
+workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
