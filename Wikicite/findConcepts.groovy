@@ -15,6 +15,14 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
+@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.2-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.2-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.2-SNAPSHOT')
+
+workspaceRoot = ".."
+ui = new net.bioclipse.managers.UIManager(workspaceRoot);
+rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
+bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 
 concept = "aflatoxin B1"
 conceptQ = "Q4689278"
