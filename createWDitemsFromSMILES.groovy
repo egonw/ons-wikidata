@@ -22,9 +22,9 @@
 // Bacting config
 @Grapes([
   @Grab(group='org.apache.jena', module='jena-arq', version='2.12.1'),
-  @Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.1-SNAPSHOT'),
-  @Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.1-SNAPSHOT'),
-  @Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.1-SNAPSHOT')
+  @Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.1'),
+  @Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.1'),
+  @Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.1')
 ])
 workspaceRoot = "."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
