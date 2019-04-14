@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.2-SNAPSHOT')
-@Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.2-SNAPSHOT')
-@Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.2-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.2')
+@Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.2')
+@Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.2')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
