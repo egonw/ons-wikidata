@@ -1,3 +1,12 @@
+@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.3-SNAPSHOT')
+
+workspaceRoot = ".."
+ui = new net.bioclipse.managers.UIManager(workspaceRoot);
+cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
+bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
+rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
 restAPI = "http://www.lipidmaps.org/rest/compound/lm_id/LMSP02/all/download"
 lmClass = "ceramide"
