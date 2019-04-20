@@ -1,5 +1,5 @@
-// Copyright (C) 2018  Egon Willighagen
-//               2018  Denise Slenter
+// Copyright (C) 2018-2019  Egon Willighagen
+//               2018       Denise Slenter
 // License: MIT
 
 // Usage:
@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.2')
-@Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.2')
-@Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.2')
+@Grab(group='net.bioclipse.bacting', module='managers-cdk', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3-SNAPSHOT')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);

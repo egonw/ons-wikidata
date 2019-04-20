@@ -20,12 +20,11 @@
 // 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grapes([
-  @Grab(group='org.apache.jena', module='jena-arq', version='2.12.1'),
-  @Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.1'),
-  @Grab(group='net.bioclipse.managers', module='bioclipse-rdf', version='0.0.1'),
-  @Grab(group='net.bioclipse.managers', module='bioclipse-ui', version='0.0.1')
-])
+@Grab(group='net.bioclipse.bacting', module='managers-cdk', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-pubchem', version='0.0.3-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-inchi', version='0.0.3-SNAPSHOT')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
@@ -46,7 +45,7 @@ idProperty = null
 // idProperty = "P662" // PubChem CID
 // idProperty = "P661" // ChemSpider
 // idProperty = "P2064" // KNAPSaCK
-// idProperty = "P2057" // HMDB
+idProperty = "P2057" // HMDB
 // idProperty = "P665" // KEGG ID
 // idProperty = "P683" // ChEBI
 // idProperty = "P592" // ChEMBL
