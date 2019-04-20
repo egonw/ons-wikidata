@@ -23,7 +23,7 @@ PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX wd: <http://www.wikidata.org/entity/>
 SELECT (substr(str(?compound),32) as ?wd) ?key ?lmid WHERE {
   ?compound wdt:P235 ?key ; wdt:${propID} ?lmid .
-  MINUS { ?compound wdt:P31 wd:Q55282178 . }
+  MINUS { ?compound wdt:P31 wd:${lmClassQ} . }
 }
 """
 
