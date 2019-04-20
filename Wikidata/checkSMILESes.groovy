@@ -1,6 +1,6 @@
-@Grab(group='net.bioclipse.bacting', module='managers-cdk', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3')
+@Grab(group='net.bioclipse.bacting', module='managers-cdk', version='0.0.4-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.4-SNAPSHOT')
+@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.4-SNAPSHOT')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
