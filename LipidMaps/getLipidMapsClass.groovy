@@ -8,10 +8,12 @@ cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
-restAPI = "http://www.lipidmaps.org/rest/compound/lm_id/LMSP02/all/download"
-lmClass = "ceramide"
-lmClassQ = "Q424213"
+lmClass = "sphingomyelins"
+lmClassID = "LMSP0301"
+lmClassQ = "Q423143"
 propID = "P2063"
+
+restAPI = "http://www.lipidmaps.org/rest/compound/lm_id/${lmClassID}/all/download"
 
 allData = bioclipse.downloadAsFile(
   restAPI, "/LipidMaps/${lmClass}.txt"
