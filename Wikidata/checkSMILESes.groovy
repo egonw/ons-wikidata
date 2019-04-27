@@ -19,7 +19,12 @@ SELECT ?compound ?smiles WHERE {
 mappings = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
 
 outFilename = "/Wikidata/badWikidataSMILES.txt"
+unitFilename = "/Wikidata/badWikidataSMILES.xml"
+
 fileContent = ""
+unitContent = ""
+unitContent = "<testsuite tests=\"1\">\n"
+unitContent += "  <testcase classname=\"SMILESTests\" name=\"Parsable\">\n"
 for (i=1; i<=mappings.rowCount; i++) {
   try {
     wdID = mappings.get(i, "compound")
@@ -29,5 +34,13 @@ for (i=1; i<=mappings.rowCount; i++) {
     fileContent += wdID + "," + smiles + ": " + exception.message + "\n"
   }
 }
+if (fileContent.length() > 0) {
+  unitContent += "<error message=\"Unparsable SMILES Found\" " +
+    "type=\"org.openscience.cdk.exception.InvalidSmilesException\">\n" +
+    fileContent + "\n</error>\n"
+}
+unitContent += "  </testcase>\n"
+unitContent += "</testsuite>\n"
 ui.append(outFilename, fileContent)
+ui.append(unitFilename, unitContent)
 // ui.open(outFilename)
