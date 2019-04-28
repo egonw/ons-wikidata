@@ -69,8 +69,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     return
   }
   atomsWithUndefinedStereo = cdk.getAtomsWithUndefinedStereo(mol)
-  if (atomsWithUndefinedStereo.size > 0) {
-    println "Molecule has ${atomsWithUndefinedStereo.size} undefined stereo atoms: ${smiles}"
+  if (atomsWithUndefinedStereo.size() > 0) {
+    println "Molecule has ${atomsWithUndefinedStereo.size()} undefined stereo atoms: ${smiles}"
     return
   } else {
     println "Molecule has no undefined stereo atoms"
