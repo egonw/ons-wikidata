@@ -50,7 +50,7 @@ def renewFile(file) {
 
 mappingsFile = input + "_mappings.txt"
 renewFile(mappingsFile)
-missingCompoundFile = input + "missing.txt"
+missingCompoundFile = input + "_missing.txt"
 renewFile(missingCompoundFile)
 
 // make a map
