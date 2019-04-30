@@ -58,7 +58,7 @@ map = new HashMap()
 existingMappings = new HashSet()
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
-  if (rowVals == "") {
+  if (rowVals[2] == "") {
     map.put(rowVals[1], rowVals[0])
   } else {
     existingMappings.add(rowVals[1])

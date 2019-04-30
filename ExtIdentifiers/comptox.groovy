@@ -57,7 +57,7 @@ map = new HashMap()
 existingMappings = new HashSet()
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
-  if (rowVals == "") {
+  if (rowVals[2] == "") {
     map.put(rowVals[1], rowVals[0])
   } else {
     existingMappings.add(rowVals[1])
@@ -86,7 +86,7 @@ new File(bioclipse.fullPath(input)).eachLine{ line ->
       }
     }
   } else if (!existingMappings.contains(inchikey)) {
-    missingContent += "${inchikey}\n"
+    missingContent += "${inchikey}\t${extid}\n"
   }
   if (batchCounter >= batchSize) {
     ui.append(mappingsFile, mappingContent)
