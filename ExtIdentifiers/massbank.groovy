@@ -32,7 +32,7 @@ sparql = """
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
   ?compound wdt:P235 ?key .
-  MINUS { ?compound wdt:${property} ?value . }
+  OPTIONAL { ?compound wdt:${property} ?value . }
 }
 """
 
@@ -55,9 +55,14 @@ renewFile(missingCompoundFile)
 
 // make a map
 map = new HashMap()
+existingMappings = new HashSet()
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
-  map.put(rowVals[1], rowVals[0])  
+  if (rowVals == "") {
+    map.put(rowVals[1], rowVals[0])
+  } else {
+    existingMappings.add(rowVals[1])
+  }
 }
 
 batchSize = 500
@@ -81,7 +86,7 @@ new File(bioclipse.fullPath(input)).eachLine{ line ->
         mappingContent += "${wdid}\t${property}\t\"${extid}\"\n"
       }
     }
-  } else {
+  } else if (!existingMappings.contains(inchikey)) {
     missingContent += "${inchikey}\n"
   }
   if (batchCounter >= batchSize) {
