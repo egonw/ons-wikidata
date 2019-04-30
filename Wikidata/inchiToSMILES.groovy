@@ -18,7 +18,7 @@ rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 
 inchiFile = "/ExtIdentifiers/Accession_to_InChi-Key.txt_uniqMissing.txt"
-idIndex = 1
+idIndex = null
 inchikeyIndex = 0
 
 sparql = """
@@ -45,7 +45,7 @@ new File(bioclipse.fullPath(inchiFile)).eachLine { line ->
   if (line.contains("\t")) {
     fields = line.trim().split("\t")
     inchikey = fields[inchikeyIndex]
-    extid = fields[idIndex]
+    if (idIndex != null)    extid = fields[idIndex]
     if (fields.length == 3) name = fields[2]
   } else {
     inchikey = line.trim()
