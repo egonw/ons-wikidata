@@ -48,6 +48,7 @@ def renewFile(file) {
 
 qsFile = "/Wikicite/output." + concept.replace(" ", "_") + ".quickstatements"
 renewFile(qsFile)
+ui.append(qsFile, "qid,P921,#\n")
 
 rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
 1.upto(rounds) { counter ->
@@ -88,8 +89,9 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
           if (!blacklisted) {
             artIRI = results.get(artCounter, "art")
             artQ = artIRI.substring(31)
-            printlnOutput += "${artQ}\t" + artTitle + "\n"
-            fileOutput += "${artQ}\tP921\t${conceptQ}\n"
+            printlnOutput += "${artQ}\t${artTitle}\n"
+            artTitle = artTitle.replaceAll(",", ";")
+            fileOutput += "${artQ},${conceptQ},${artTitle}\n"
           }
         }
         print(printlnOutput)
