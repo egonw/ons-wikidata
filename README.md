@@ -8,7 +8,7 @@ After that, you can run the scripts with Groovy. If you are not using Bacting, m
 to remove the following lines at the top of the script:
 
 ```groovy
-@Grab(group='net.bioclipse.managers', module='bioclipse-cdk', version='0.0.2-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.5')
 
 workspaceRoot = System.properties['user.dir']
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
