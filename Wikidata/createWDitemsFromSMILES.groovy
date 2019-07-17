@@ -20,11 +20,11 @@
 // 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grab(group='net.bioclipse.bacting', module='managers-cdk', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-pubchem', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-inchi', version='0.0.3')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.7')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
