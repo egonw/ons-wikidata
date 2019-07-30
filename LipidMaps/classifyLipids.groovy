@@ -1,12 +1,12 @@
-@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.7')
 
 workspaceRoot = ".."
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
-lmClassQ = "Q4198767"
-lmClassID = "LMFA0311"
+lmClassQ = "Q65982942"
+lmClassID = "LMGP1201"
 propID = "P2063"
 
 sparql = """
