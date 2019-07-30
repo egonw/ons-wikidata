@@ -26,9 +26,9 @@ if (bioclipse.isOnline()) {
   )
 }
 
-println "qid,P31"
+println "qid,P31,S248,S813"
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
   wdid = rowVals[0]
-  println "${wdid},${lmClassQ}"
+  println "${wdid},${lmClassQ},Q20968889,+2017-10-04T00:00:00Z/11"
 }
