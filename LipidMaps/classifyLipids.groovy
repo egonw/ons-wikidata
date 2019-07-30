@@ -26,8 +26,9 @@ if (bioclipse.isOnline()) {
   )
 }
 
+println "qid,P31"
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
   wdid = rowVals[0]
-  println "${wdid}\tP31\t${lmClassQ}"
+  println "${wdid},${lmClassQ}"
 }
