@@ -1,12 +1,17 @@
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.7')
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.7')
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 workspaceRoot = ".."
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
-lmClassQ = "Q65982942"
-lmClassID = "LMGP1201"
+lmClassQ = "Q32528"
+lmClassID = "LMPR010206"
+String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
 propID = "P2063"
 
 sparql = """
@@ -30,5 +35,5 @@ println "qid,P31,S248,S813"
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
   wdid = rowVals[0]
-  println "${wdid},${lmClassQ},Q20968889,+2017-10-04T00:00:00Z/11"
+  println "${wdid},${lmClassQ},Q20968889,+${date}T00:00:00Z/11"
 }
