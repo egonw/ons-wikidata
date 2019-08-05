@@ -217,7 +217,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     if (compoundClassQ != null) classInfo = "Q$item\tP31\t$compoundClassQ"
 
     statement = """
-      $classInfo
+      $classInfo$paperProv
       Q$item\tP31\tQ11173$paperProv\n"""
 
     // check for missing properties
@@ -251,7 +251,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
   
     if (idProperty != null && idProperty != "" && !extidFound) {
-      statement += "      Q$item\t$idProperty\t\"$extid\"\n"
+      statement += "      Q$item\t$idProperty\t\"$extid\"$paperProv\n"
     }
 
     ui.append(qsFile, statement + "\n")
@@ -272,7 +272,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       """
     } else statement = ""
    
-    if (compoundClassQ != null) statement += "$item\tP31\t$compoundClassQ\n"
+    if (compoundClassQ != null) statement += "$item\tP31\t$compoundClassQ$paperProv\n"
    
     statement += """
       $item\tP31\tQ11173$paperProv
@@ -288,7 +288,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     """
 
     if (idProperty != null && idProperty != "") {
-      statement += "  $item\t$idProperty\t\"$extid\""
+      statement += "  $item\t$idProperty\t\"$extid\"$paperProv"
     }
 
     println "===================="
