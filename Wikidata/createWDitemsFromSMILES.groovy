@@ -42,6 +42,7 @@ compoundClassQ = null
 // compoundClassQ = "Q2981798" // ubiquinones
 
 idProperty = null
+// idProperty = "P3636" // PDB ligand ID
 // idProperty = "P662" // PubChem CID
 // idProperty = "P661" // ChemSpider
 // idProperty = "P2064" // KNAPSaCK
@@ -50,7 +51,8 @@ idProperty = "P2057" // HMDB
 // idProperty = "P683" // ChEBI
 // idProperty = "P592" // ChEMBL
 // idProperty = "P231" // CAS
-// idProperty = "P2063" // LIPID MAPS
+idProperty = "P2063" // LIPID MAPS
+// idProperty = "P3117" // CompTox
 
 qsFile = "/Wikidata/output.quickstatements"
 
