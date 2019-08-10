@@ -49,6 +49,8 @@ if (fileContent.length() > 0) {
 }
 ui.append(outFilename, fileContent); fileContent = ""
 ui.append(unitFilename, unitContent); unitContent = ""
+unitContent += "  </testcase>\n"
+unitContent += "  <testcase classname=\"IsomericSMILESTests\" name=\"Parsable\">\n"
 for (i=1; i<=isoMappings.rowCount; i++) {
   try {
     wdID = isoMappings.get(i, "compound")
