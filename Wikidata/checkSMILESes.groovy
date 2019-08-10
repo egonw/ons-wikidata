@@ -39,7 +39,7 @@ for (i=1; i<=canMappings.rowCount; i++) {
     smiles = canMappings.get(i, "smiles")
     mol = cdk.fromSMILES(smiles)
   } catch (Exception exception) {
-    fileContent += wdID + "," + smiles + ": " + exception.message + "\n"
+    fileContent += wdID + " , " + smiles + ": " + exception.message + "\n"
   }
 }
 if (fileContent.length() > 0) {
@@ -57,7 +57,7 @@ for (i=1; i<=isoMappings.rowCount; i++) {
     smiles = isoMappings.get(i, "smiles")
     mol = cdk.fromSMILES(smiles)
   } catch (Exception exception) {
-    fileContent += wdID + "," + smiles + ": " + exception.message + "\n"
+    fileContent += wdID + " , " + smiles + ": " + exception.message + "\n"
   }
 }
 if (fileContent.length() > 0) {
