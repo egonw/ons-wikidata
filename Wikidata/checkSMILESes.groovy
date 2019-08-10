@@ -16,19 +16,43 @@ SELECT ?compound ?smiles WHERE {
   ?compound wdt:P233 ?smiles .
 }
 """
-mappings = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
+canMappings = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
+
+sparql = """
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+SELECT ?compound ?smiles WHERE {
+  ?compound wdt:P2017 ?smiles .
+}
+"""
+isoMappings = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
 
 outFilename = "/Wikidata/badWikidataSMILES.txt"
 unitFilename = "/Wikidata/badWikidataSMILES.xml"
 
 fileContent = ""
 unitContent = ""
-unitContent = "<testsuite tests=\"1\">\n"
+unitContent = "<testsuite tests=\"2\">\n"
 unitContent += "  <testcase classname=\"SMILESTests\" name=\"Parsable\">\n"
-for (i=1; i<=mappings.rowCount; i++) {
+for (i=1; i<=canMappings.rowCount; i++) {
   try {
-    wdID = mappings.get(i, "compound")
-    smiles = mappings.get(i, "smiles")
+    wdID = canMappings.get(i, "compound")
+    smiles = canMappings.get(i, "smiles")
+    mol = cdk.fromSMILES(smiles)
+  } catch (Exception exception) {
+    fileContent += wdID + "," + smiles + ": " + exception.message + "\n"
+  }
+}
+if (fileContent.length() > 0) {
+  unitContent += "<error message=\"Unparsable SMILES Found\" " +
+    "type=\"org.openscience.cdk.exception.InvalidSmilesException\">\n" +
+    fileContent + "\n</error>\n"
+}
+ui.append(outFilename, fileContent); fileContent = ""
+ui.append(unitFilename, unitContent); unitContent = ""
+for (i=1; i<=isoMappings.rowCount; i++) {
+  try {
+    wdID = isoMappings.get(i, "compound")
+    smiles = isoMappings.get(i, "smiles")
     mol = cdk.fromSMILES(smiles)
   } catch (Exception exception) {
     fileContent += wdID + "," + smiles + ": " + exception.message + "\n"
