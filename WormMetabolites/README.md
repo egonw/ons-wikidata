@@ -3,7 +3,7 @@
 The code in this folder takes the data from a supplementary file from
 a paper by Witting and Hastings et al. reviewing several other papers reporting experimental evidence
 of the occurance of metabolites in C. elegans
-(doi:[10.3389/fmolb.2018.00096](https://tools.wmflabs.org/scholia/doi/10.3389/fmolb.2018.00096]).
+(doi:[10.3389/fmolb.2018.00096](https://tools.wmflabs.org/scholia/doi/10.3389/fmolb.2018.00096)).
 
 Before we kick off, make sure to download the `SI_Table_1.xlsx` file.
 
