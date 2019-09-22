@@ -23,7 +23,7 @@ for (line in parseCsv(new FileReader('pc-report-102411_standardizationIssues.csv
 print """
 {| class="wikitable"
 |-
-! Wikidata !! Error Message
+! Wikidata !! Scholia !! Error Message !! SMILES
 """
 
 record = 0
@@ -35,15 +35,18 @@ while (iterator.hasNext()) {
   IAtomContainer mol = iterator.next()
   record++
 
-  if (duplicates.containsKey("" + record)) {
-    qid = mol.getProperty("PUBCHEM_EXT_DATASOURCE_REGID")
+  key = "" + record
+  qid = mol.getProperty("PUBCHEM_EXT_DATASOURCE_REGID")
+  smi = mol.getProperty("PUBCHEM_EXT_DATASOURCE_SMILES")
+  qidTempl = "{{Q|${qid.substring(1)}}}"
+
+  if (duplicates.containsKey(key)) {
     println """|-
-|[https://tools.wmflabs.org/scholia/chemical/$qid $qid] || ${duplicates.get("" + record)}"""
+| ${qidTempl} || [https://tools.wmflabs.org/scholia/chemical/$qid $qid] || ${duplicates.get(key)} || ${smi}"""
   }
-  if (issues.containsKey("" + record)) {
-    qid = mol.getProperty("PUBCHEM_EXT_DATASOURCE_REGID")
+  if (issues.containsKey(key)) {
     println """|-
-|[https://tools.wmflabs.org/scholia/chemical/$qid $qid] || ${issues.get("" + record)}"""
+| ${qidTempl} || [https://tools.wmflabs.org/scholia/chemical/$qid $qid] || ${issues.get(key)} || ${smi}"""
   }
 }
 
