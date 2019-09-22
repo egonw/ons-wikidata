@@ -55,7 +55,10 @@ regIDs = new HashSet<String>();
         isoSmi = results.get(chemCounter, "isomeric")
         outSmi = (isoSmi ? isoSmi : canSmi)
         qid = wdid.substring(31)
-        if (!regIDs.contains(qid)) {
+        if (!regIDs.contains(qid) &&
+            !outSmi.contains(" ") && // ignore entries with spaces in the SMILES
+            !outSmi.contains("[R1]") // ignore entries with R1 in the SMILES
+        {
           regIDs.add(qid)
           try {
             mol = cdk.fromSMILES(outSmi)
