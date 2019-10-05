@@ -254,7 +254,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       }
     }
   
-    if (idProperty != null && idProperty != "" && !extidFound) {
+    if (idProperty != null && idProperty != "" && idProperty != "P662" && !extidFound) {
       statement += "      Q$item\t$idProperty\t\"$extid\"$paperProv\n"
     }
 
