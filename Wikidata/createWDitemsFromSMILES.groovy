@@ -74,14 +74,9 @@ def upgradeChemFormula(formula) {
   formula = formula.replace("8","₈");
   formula = formula.replace("9","₉");
 }
-def renewFile(file) {
-  if (ui.fileExists(file)) ui.remove(file)
-  ui.newFile(file)
-  return file
-}
 
 // reset the output (SD file + QuickStatements)
-renewFile(qsFile)
+ui.renewFile(qsFile)
 mols = cdk.createMoleculeList()
 
 new File(bioclipse.fullPath(smiFile)).eachLine { line ->
