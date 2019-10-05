@@ -165,42 +165,46 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   
   pubchemLine = ""
   if (bioclipse.isOnline()) {
-    pcResults = pubchem.search(key)
-    sleep(250) // keep PubChem happy
-    if (pcResults.size == 1) {
-      cid = pcResults[0]
-      pubchemLine = "$item\tP662\t\"$cid\""
-	  sparql = """
-	  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-  	  SELECT ?compound WHERE {
-        ?compound wdt:P662 "$cid" .
-	  }
-	  """
-  	
-      if (bioclipse.isOnline()) {
-	    results = rdf.sparqlRemote(
-          "https://query.wikidata.org/sparql", sparql
-	    )
-	    missing = results.rowCount == 0
-	    if (!missing) {
-  	      pcExistingQcode = results.get(1,"compound")
-  	      println "PubChem CID match: $pcExistingQcode"
-  	      if (existingQcode != "") {
-  	        if (existingQcode != pcExistingQcode) {
-  	          println "Conflicting Qcodes: $existingQcode and $pcExistingQcode"
-  	        } // else: OK, the same
-  	      } else {
-            existingQcode = pcExistingQcode
-  	      }
-  	    } else {
-  	     if (existingQcode != "") {
-  	       missing = false // we already found one using the InChIKey
-  	     }
-  	    }
-	  } else {
-        println "no online access"
-	    missing = true
-	  }
+    try {
+      pcResults = pubchem.search(key)
+      sleep(250) // keep PubChem happy
+      if (pcResults.size == 1) {
+        cid = pcResults[0]
+        pubchemLine = "$item\tP662\t\"$cid\""
+  	  sparql = """
+  	  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+    	  SELECT ?compound WHERE {
+          ?compound wdt:P662 "$cid" .
+  	  }
+  	  """
+
+        if (bioclipse.isOnline()) {
+  	    results = rdf.sparqlRemote(
+            "https://query.wikidata.org/sparql", sparql
+  	    )
+  	    missing = results.rowCount == 0
+  	    if (!missing) {
+    	      pcExistingQcode = results.get(1,"compound")
+    	      println "PubChem CID match: $pcExistingQcode"
+    	      if (existingQcode != "") {
+    	        if (existingQcode != pcExistingQcode) {
+    	          println "Conflicting Qcodes: $existingQcode and $pcExistingQcode"
+    	        } // else: OK, the same
+    	      } else {
+              existingQcode = pcExistingQcode
+    	      }
+    	    } else {
+    	     if (existingQcode != "") {
+    	       missing = false // we already found one using the InChIKey
+    	     }
+    	    }
+  	  } else {
+          println "no online access"
+  	    missing = true
+  	  }
+      }
+    } catch (Exception exception) {
+      println "Error while accessing PubChem: ${exception.message}"
     }
   }
 
