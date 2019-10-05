@@ -9,8 +9,9 @@
 //
 //     https://tools.wmflabs.org/quickstatements/
 
-@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.9')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.9')
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
