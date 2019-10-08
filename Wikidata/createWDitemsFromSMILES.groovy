@@ -35,6 +35,12 @@ pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 
 smiFile = "/Wikidata/cas.smi"; 
 
+def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy -[n]')
+cli.with {
+  n longOpt: 'non-existing-only', 'Only output non-existing chemicals'
+}
+def options = cli.parse(args)
+
 compoundClassQ = null
 // compoundClassQ = "Q419287" // gangliosides
 // compoundClassQ = "Q60224961" // phytocassane
@@ -206,10 +212,13 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   paperProv = ""
   if (paperQ != null) paperProv = "\tS248\t$paperQ"
 
-  if (!missing) {
+  if (!missing && options.'non-existing-only') {
     println "===================="
     println "$formula is already in Wikidata as " + existingQcode
-  
+  } else if (!missing) {
+    println "===================="
+    println "$formula is already in Wikidata as " + existingQcode
+
     item = existingQcode.substring(32)
     pubchemLine = pubchemLine.replace("LAST", "Q" + existingQcode.substring(32))
 
