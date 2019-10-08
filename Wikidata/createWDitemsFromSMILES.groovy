@@ -38,27 +38,33 @@ smiFile = "/Wikidata/cas.smi";
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy -[n]')
 cli.with {
   n longOpt: 'non-existing-only', 'Only output non-existing chemicals'
+  i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
+  c(longOpt: 'compound-class', args:1, argName:'class', 'QID of the class of which the compound is an instance')
 }
 def options = cli.parse(args)
 
 compoundClassQ = null
-// compoundClassQ = "Q419287" // gangliosides
-// compoundClassQ = "Q60224961" // phytocassane
-// compoundClassQ = "Q59944374" // 3‐butyl‐5‐(1‐oxopropyl)indolizidine, an ant creation
-// compoundClassQ = "Q2981798" // ubiquinones
+if (options.class) {
+  compoundClassQ = options.class
+}
 
 idProperty = null
-// idProperty = "P3636" // PDB ligand ID
-// idProperty = "P662" // PubChem CID
-// idProperty = "P661" // ChemSpider
-// idProperty = "P2064" // KNAPSaCK
-idProperty = "P2057" // HMDB
-// idProperty = "P665" // KEGG ID
-// idProperty = "P683" // ChEBI
-// idProperty = "P592" // ChEMBL
-// idProperty = "P231" // CAS
-idProperty = "P2063" // LIPID MAPS
-// idProperty = "P3117" // CompTox
+if (options.identifier) {
+  switch (options.identifier.toLowerCase()) {
+    case "hmdb": idProperty = "P2057"; break
+    case "comptox": idProperty = "P3117"; break
+    case "lipidmaps": idProperty = "P2063"; break
+    case "cas": idProperty = "P231"; break
+    case "chembl": idProperty = "P592"; break
+    case "chebi": idProperty = "P683"; break
+    case "kegg": idProperty = "P665"; break
+    case "knapsack": idProperty = "P2064"; break
+    case "chemspider": idProperty = "P661"; break
+    case "pubchem": idProperty = "P662"; break
+    case "pdb": idProperty = "P3636"; break
+    default: println "Unknown identifier database: ${options.identifier}"; System.exit(-1)
+  }
+}
 
 qsFile = "/Wikidata/output.quickstatements"
 
