@@ -35,13 +35,17 @@ pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 
 smiFile = "/Wikidata/cas.smi"; 
 
-def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy -[n]')
-cli.with {
-  n longOpt: 'non-existing-only', 'Only output non-existing chemicals'
-  i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
-  c(longOpt: 'compound-class', args:1, argName:'class', 'QID of the class of which the compound is an instance')
-}
+def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
+cli.h(longOpt: 'help', 'print this message')
+cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
+cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
+cli.c(longOpt: 'compound-class', args:1, argName:'class', 'QID of the class of which the compound is an instance')
 def options = cli.parse(args)
+
+if (options.help) {
+  cli.usage()
+  System.exit(0)
+}
 
 compoundClassQ = null
 if (options.class) {
