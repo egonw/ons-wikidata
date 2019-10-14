@@ -40,7 +40,9 @@ concept = concept.toLowerCase()
 
 totalArticleCount = 20000000
 batchSize = 100000
-start = 0
+startBatch = 1
+
+start = startBatch*batchSize
 
 def renewFile(file) {
   if (ui.fileExists(file)) ui.remove(file)
