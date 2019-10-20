@@ -40,11 +40,16 @@ cli.h(longOpt: 'help', 'print this message')
 cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
 cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
+cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
 def options = cli.parse(args)
 
 if (options.help) {
   cli.usage()
   System.exit(0)
+}
+
+if (options.f) {
+  smiFile = options.f
 }
 
 compoundClassQ = null
