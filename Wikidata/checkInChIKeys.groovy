@@ -91,3 +91,8 @@ if (fileContent.length() > 0) {
 ui.append(outFilename, fileContent); fileContent = ""
 ui.append(unitFilename, unitContent); unitContent = ""
 unitContent += "  </testcase>\n"
+
+unitContent += "</testsuite>\n"
+ui.append(outFilename, fileContent)
+ui.append(unitFilename, unitContent)
+// ui.open(outFilename)
