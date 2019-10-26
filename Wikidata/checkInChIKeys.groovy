@@ -31,6 +31,8 @@ isoMappings = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
 
 outFilename = "/Wikidata/mismatchInChIKey.txt"
 unitFilename = "/Wikidata/mismatchInChIKey.xml"
+ui.renewFile(outFilename)
+ui.renewFile(unitFilename)
 
 // Test for InChIKey mismatches
 
@@ -64,9 +66,6 @@ ui.append(unitFilename, unitContent); unitContent = ""
 unitContent += "  </testcase>\n"
 
 // Test 1: the first block should be identical when calculated from the canonical SMILES
-fileContent = ""
-unitContent = ""
-unitContent = "<testsuite tests=\"2\">\n"
 unitContent += "  <testcase classname=\"InChITests\" name=\"InChIKeyMismatch\">\n"
 for (i=1; i<=isoMappings.rowCount; i++) {
   try {
@@ -88,11 +87,9 @@ if (fileContent.length() > 0) {
     "type=\"io.github.egonw.wikidata.ons.chemistry\">\n" +
     fileContent + "\n</error>\n"
 }
-ui.append(outFilename, fileContent); fileContent = ""
-ui.append(unitFilename, unitContent); unitContent = ""
 unitContent += "  </testcase>\n"
-
 unitContent += "</testsuite>\n"
+
 ui.append(outFilename, fileContent)
 ui.append(unitFilename, unitContent)
 // ui.open(outFilename)
