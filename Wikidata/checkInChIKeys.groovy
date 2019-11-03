@@ -52,7 +52,7 @@ for (i=1; i<=canMappings.rowCount; i++) {
     if (!calculatedKey.substring(0,14).equals(inchikey.substring(0,14))) {
       fileContent += wdID + " with canonical SMILES '${smiles}' has a calculated InChIKey ${calculatedKey} that does not match the given ${inchikey}\n"
     }
-  } catch (InvalidSmilesException exception) {
+  } catch (Exception exception) {
     // ignore bad SMILES; there is a separate test for that
   }
 }
@@ -78,7 +78,7 @@ for (i=1; i<=isoMappings.rowCount; i++) {
     if (!calculatedKey.substring(0,14).equals(inchikey.substring(0,14))) {
       fileContent += wdID + " with isomeric SMILES '${smiles}' has a calculated InChIKey ${calculatedKey} that does not match the given ${inchikey}\n"
     }
-  } catch (InvalidSmilesException exception) {
+  } catch (Exception exception) {
     // ignore bad SMILES; there is a separate test for that
   }
 }
