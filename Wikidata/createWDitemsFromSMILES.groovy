@@ -41,6 +41,7 @@ cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full
 cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
 cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
+cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
 cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
 def options = cli.parse(args)
 
@@ -82,6 +83,9 @@ qsFile = "/Wikidata/output.quickstatements"
 // on the next line, e.g. paperQ = "Q22570477". It will be used as reference
 // to some of the information 
 paperQ = null
+if (options.p) {
+  paperQ = options.p
+}
 
 // a helper function
 def upgradeChemFormula(formula) {
