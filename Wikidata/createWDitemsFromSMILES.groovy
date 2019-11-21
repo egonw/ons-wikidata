@@ -238,7 +238,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
   if (!missing && options.'non-existing-only') {
     println "===================="
-    println "$formula is already in Wikidata as " + existingQcode
+    println (new String((char)27) + "[31m" + "$formula is already in Wikidata as " + existingQcode + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
     } else {
@@ -246,11 +246,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
   } else if (!missing && ignoreBecauseStereoMissing) {
     println "===================="
-    println "$formula is already in Wikidata as " + existingQcode
+    println (new String((char)27) + "[31m" + "$formula is already in Wikidata as " + existingQcode + new String((char)27) + "[37m")
     println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
   } else if (!missing) {
     println "===================="
-    println "$formula is already in Wikidata as " + existingQcode
+    println (new String((char)27) + "[31m" + "$formula is already in Wikidata as " + existingQcode + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
     } else {
@@ -313,12 +313,13 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     println "===================="
   } else if (ignoreBecauseStereoMissing) {
     println "===================="
-    println "$formula is not yet in Wikidata"
+    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println ""
     println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
     println "===================="
   } else if (!ignoreBecauseStereoMissing) {
     println "===================="
-    println "$formula is not yet in Wikidata"
+    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
     } else {
