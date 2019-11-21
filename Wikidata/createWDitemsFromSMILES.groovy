@@ -37,6 +37,7 @@ smiFile = "/Wikidata/cas.smi";
 
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
 cli.h(longOpt: 'help', 'print this message')
+cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full stereochemistry defined')
 cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
 cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
@@ -227,12 +228,30 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   paperProv = ""
   if (paperQ != null) paperProv = "\tS248\t$paperQ"
 
+  undefinedCenters = cdk.getAtomsWithUndefinedStereo(mol)
+  fullChiralityIsDefined = undefinedCenters.size() == 0
+  ignoreBecauseStereoMissing =  options.s && !fullChiralityIsDefined
+
   if (!missing && options.'non-existing-only') {
     println "===================="
     println "$formula is already in Wikidata as " + existingQcode
+    if (fullChiralityIsDefined) {
+      println "Full stereochemistry is defined"
+    } else {
+      println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
+    }
+  } else if (!missing && ignoreBecauseStereoMissing) {
+    println "===================="
+    println "$formula is already in Wikidata as " + existingQcode
+    println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
   } else if (!missing) {
     println "===================="
     println "$formula is already in Wikidata as " + existingQcode
+    if (fullChiralityIsDefined) {
+      println "Full stereochemistry is defined"
+    } else {
+      println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
+    }
 
     item = existingQcode.substring(32)
     pubchemLine = pubchemLine.replace("LAST", "Q" + existingQcode.substring(32))
@@ -288,7 +307,20 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     //ui.append(reconFile, "$id Q$item\n")
       
     println "===================="
-  } else {
+  } else if (ignoreBecauseStereoMissing) {
+    println "===================="
+    println "$formula is not yet in Wikidata"
+    println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
+    println "===================="
+  } else if (!ignoreBecauseStereoMissing) {
+    println "===================="
+    println "$formula is not yet in Wikidata"
+    if (fullChiralityIsDefined) {
+      println "Full stereochemistry is defined"
+    } else {
+      println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
+    }
+
     if (item == "LAST") {
       statement = """
       CREATE
@@ -314,8 +346,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       statement += "  $item\t$idProperty\t\"$extid\"$paperProv"
     }
 
-    println "===================="
-    println "$formula is not yet in Wikidata"
+    if (fullChiralityIsDefined) {
+      println "Full stereochemistry is defined"
+    } else {
+      println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
+    }
     ui.append(qsFile, statement + "\n")
     println "===================="
   }
