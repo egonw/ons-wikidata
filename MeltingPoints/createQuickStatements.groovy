@@ -46,6 +46,7 @@ for (inchikey in mps.keySet()) {
 }
 sparql += """  }
   ?cmp wdt:P235 ?inchikey .
+  MINUS { ?cmp wdt:P2101 ?mp }
 }
 """
 results = rdf.sparqlRemote(
