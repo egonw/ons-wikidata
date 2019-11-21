@@ -15,19 +15,40 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='io.github.egonw.bacting', module='bioclipse-cdkbusiness', version='2.8.0.2')
-@Grab(group='io.github.egonw.bacting', module='bioclipse-core', version='2.8.0.2')
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.5')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.5')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.5')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.10')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 
-concept = "aflatoxin B1"
-conceptQ = "Q4689278"
+batchSize = 100000
+
+def cli = new CliBuilder(usage: 'findConcepts.groovy')
+cli.h(longOpt: 'help', 'print this message')
+cli.s(longOpt: 'search-string', args:1, argName:'query', 'Search this query in the article titles')
+cli.q(longOpt: 'qid', args:1, argName:'qid', 'QID of the item to set as main item')
+cli.o(longOpt: 'offset', args:1, argName:'offset', 'Number of batches (batch size: ${batchSize}) to skip')
+def options = cli.parse(args)
+
+if (options.help) {
+  cli.usage()
+  System.exit(0)
+}
+
+concept = null
+conceptQ = null
+if (options.s) concept = options.s
+if (options.q) conceptQ = options.q
+startBatch = 0
+if (options.o) startBatch = Integer.parseInt(options.o)
+
+if (concept == null | conceptQ == null) {
+  println "A search string and QID must be given."
+  System.exit(-1)
+}
 
 // the next is a list of false positives (all lower case)
 
@@ -40,7 +61,6 @@ concept = concept.toLowerCase()
 
 totalArticleCount = 20000000
 batchSize = 100000
-startBatch = 1
 
 start = startBatch*batchSize
 
