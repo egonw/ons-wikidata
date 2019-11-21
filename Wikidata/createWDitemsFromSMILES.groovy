@@ -346,11 +346,6 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       statement += "  $item\t$idProperty\t\"$extid\"$paperProv"
     }
 
-    if (fullChiralityIsDefined) {
-      println "Full stereochemistry is defined"
-    } else {
-      println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
-    }
     ui.append(qsFile, statement + "\n")
     println "===================="
   }
