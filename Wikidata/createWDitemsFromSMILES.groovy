@@ -314,7 +314,6 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   } else if (ignoreBecauseStereoMissing) {
     println "===================="
     println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
-    println ""
     println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
     println "===================="
   } else if (!ignoreBecauseStereoMissing) {
