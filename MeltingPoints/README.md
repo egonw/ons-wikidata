@@ -10,6 +10,11 @@ like:
 wget -o BradleyMeltingPointDataset.xlsx https://ndownloader.figshare.com/files/1503990
 ```
 
+QuickStatements can then be generated for compounds without missing boiling
+points with:
 
+```shell
+groovy createQuickStatements.groovy > output.qs
+```
 
 
