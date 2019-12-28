@@ -24,9 +24,9 @@ ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 
-batchSize = 100000
+batchSize = 50000
 
-def cli = new CliBuilder(usage: 'findConcepts.groovy')
+def cli = new CliBuilder(usage: 'findTrials.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.s(longOpt: 'search-string', args:1, argName:'query', 'Search this query in the article titles')
 cli.q(longOpt: 'qid', args:1, argName:'qid', 'QID of the item to set as main item')
@@ -60,8 +60,7 @@ blacklist = [
 
 concept = concept.toLowerCase()
 
-totalArticleCount = 20000000
-batchSize = 100000
+totalArticleCount = 350000
 
 start = startBatch*batchSize
 
@@ -71,25 +70,25 @@ def renewFile(file) {
   return file
 }
 
-qsFile = "/Wikicite/output." + concept.replace(" ", "_") + ".quickstatements"
+qsFile = "/ClinicalTrials/output." + concept.replace(" ", "_") + ".quickstatements"
 renewFile(qsFile)
-ui.append(qsFile, "qid,P921,#\n")
+ui.append(qsFile, "qid,P4844,#\n")
 
 rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
 1.upto(rounds) { counter ->
   print "batch ${counter}/${rounds}: "
   offset = start + (counter-1)*batchSize
   sparql = """
-    SELECT ?art ?artLabel
+    SELECT ?trial ?trialLabel
     WITH {
-      SELECT ?art WHERE {
-        ?art wdt:P31 wd:Q13442814
+      SELECT DISTINCT ?trial WHERE {
+        ?trial wdt:P31 wd:Q30612
       } LIMIT $batchSize OFFSET $offset
-    } AS %RESULTS { 
+    } AS %RESULTS {
       INCLUDE %RESULTS
-      MINUS { ?art wdt:P921 wd:$conceptQ }
-      ?art wdt:P1476 ?artLabel .
-      FILTER (contains(lcase(str(?artLabel)), "$concept"))
+      ?trial wdt:P1476 ?trialLabel .
+      MINUS { ?trial wdt:P921 wd:$conceptQ }
+      FILTER (contains(lcase(str(?trialLabel)), "$concept"))
     }
   """
   if (bioclipse.isOnline()) {
@@ -104,7 +103,7 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
         printlnOutput = ""
         fileOutput = ""
         1.upto(results.rowCount) { artCounter ->
-          artTitle = results.get(artCounter, "artLabel")
+          artTitle = results.get(artCounter, "trialLabel")
           blacklisted = false
           blacklist.each { badWord ->
             if (artTitle.toLowerCase().contains(badWord.toLowerCase())) {
@@ -112,7 +111,7 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
             }
           }
           if (!blacklisted) {
-            artIRI = results.get(artCounter, "art")
+            artIRI = results.get(artCounter, "trial")
             artQ = artIRI.substring(31)
             printlnOutput += "${artQ}\t${artTitle}\n"
             artTitle = artTitle.replaceAll(",", ";")
