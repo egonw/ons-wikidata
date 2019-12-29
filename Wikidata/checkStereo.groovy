@@ -17,7 +17,7 @@ SELECT DISTINCT ?compound ?smiles ?isosmiles WHERE {
   ?compound wdt:P233 | wdt:P2017 [] .
   OPTIONAL { ?compound wdt:P233 ?smiles }
   OPTIONAL { ?compound wdt:P2017 ?isosmiles }
-}
+} LIMIT 500
 """
 mappings = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
 
@@ -31,6 +31,7 @@ fileContent = ""
 unitContent = ""
 unitContent = "<testsuite tests=\"1\">\n"
 unitContent += "  <testcase classname=\"checkStereo\" name=\"missingStereo\">\n"
+errorCount = 0
 for (i=1; i<=mappings.rowCount; i++) {
   try {
     wdID = mappings.get(i, "compound")
@@ -44,13 +45,14 @@ for (i=1; i<=mappings.rowCount; i++) {
 
     if (!fullChiralityIsDefined) {
       fileContent += wdID + " with SMILES '${smiles}' has missing stereochemistry for ${undefinedCenters.size()} center(s)\n"
+      errorCount++
     }
   } catch (Exception exception) {
     // ignore bad SMILES; there is a separate test for that
   }
 }
 if (fileContent.length() > 0) {
-  unitContent += "<error message=\"There \" " +
+  unitContent += "<error message=\"There are ${errorCount} compounds with missing stereochemistry\" " +
     "type=\"io.github.egonw.wikidata.ons.chemistry\">\n" +
     fileContent + "\n</error>\n"
 }
