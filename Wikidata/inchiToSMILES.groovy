@@ -4,11 +4,11 @@
 //   Takes a list of InChIs and fetches SMILES for them from PubChem.
 
 // Bacting config
-@Grab(group='net.bioclipse.bacting', module='managers-cdk', version='0.0.4-SNAPSHOT')
-@Grab(group='net.bioclipse.bacting', module='managers-rdf', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-ui', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-pubchem', version='0.0.3')
-@Grab(group='net.bioclipse.bacting', module='managers-inchi', version='0.0.3')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.10')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
@@ -17,7 +17,7 @@ inchi = new net.bioclipse.managers.InChIManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 
-inchiFile = "/ExtIdentifiers/Accession_to_InChi-Key.txt_uniqMissing.txt"
+inchiFile = "/Wikidata/pfas.inchis"
 idIndex = null
 inchikeyIndex = 0
 
