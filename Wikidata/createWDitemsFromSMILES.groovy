@@ -43,6 +43,7 @@ cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
 cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
 cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
+cli.l(longOpt: 'with-labels', 'Take the field after the SMILES as the label of the compound')
 def options = cli.parse(args)
 
 if (options.help) {
@@ -54,6 +55,11 @@ if (options.f) {
   smiFile = options.f
 }
 
+outputLabel = false
+if (options.l) {
+  outputLabel = true
+}
+
 compoundClassQ = null
 if (options.c) {
   compoundClassQ = options.c
@@ -61,6 +67,10 @@ if (options.c) {
 
 idProperty = null
 if (options.identifier) {
+  if (outputLabel) {
+    System.out("Cannot take both a label and an indentifier from the input")
+    System.exit(-1)
+  }
   switch (options.identifier.toLowerCase()) {
     case "hmdb": idProperty = "P2057"; break
     case "comptox": idProperty = "P3117"; break
@@ -112,7 +122,13 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   existingQcode = ""; classInfo = ""
   if (line.contains("\t")) {
     fields = line.split("\t")
-    if (fields.length == 2) (smiles, extid) = fields 
+    if (fields.length == 2) {
+      if (outputLabel) {
+        (smiles, name) = fields
+      } else {
+        (smiles, extid) = fields
+      }
+    }
     // if (fields.length == 3) (inchikey, extid, smiles) = fields
     if (fields.length == 3) (smiles, extid, name) = fields
   } else {
