@@ -68,7 +68,7 @@ regIDs = new HashSet<String>();
             } else {
               outCmp += label + ","
             }
-            outCmp += "https://tools.wmflabs.org/scholia/${qid},"
+            outCmp += "https://scholia.toolforge.org/${qid},"
             outCmp += "$outSmi\n"
             ui.append(output, outCmp)
           } catch (Exception exception) {
