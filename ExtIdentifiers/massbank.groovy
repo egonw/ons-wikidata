@@ -9,8 +9,8 @@
 //
 //     https://tools.wmflabs.org/quickstatements/
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.11')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.11')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
@@ -31,16 +31,21 @@ ignores = new java.util.HashSet();
 
 sparql = """
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
-  ?compound wdt:P235 ?key .
+SELECT (substr(str(?compound),32) as ?wd) ?key ?value WITH {
+  SELECT ?compound ?key WHERE {
+    ?compound wdt:P235 ?key .
+  }
+} AS %INCHIKEYS {
+  INCLUDE %INCHIKEYS
   OPTIONAL { ?compound wdt:${property} ?value . }
 }
 """
 
 if (bioclipse.isOnline()) {
-  results = rdf.sparqlRemote(
+  rawResults = bioclipse.sparqlRemote(
     "https://query.wikidata.org/sparql", sparql
   )
+  results = rdf.processSPARQLXML(rawResults, sparql)
 }
 
 def renewFile(file) {
