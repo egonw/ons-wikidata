@@ -1,9 +1,9 @@
 @GrabResolver(name='spring', root='https://repo.spring.io/plugins-release/')
 @Grab(group='nu.xom', module='com.springsource.nu.xom', version='1.2.5')
 
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.8')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.8')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.8')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.11')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.11')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.11')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
