@@ -1,7 +1,7 @@
-@Grab(group='io.github.egonw.bacting', module='managers-excel', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.9') 
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.9')
+@Grab(group='io.github.egonw.bacting', module='managers-excel', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.12')
 
 workspaceRoot = ".."
 excel = new net.bioclipse.managers.ExcelManager(workspaceRoot);
@@ -36,6 +36,7 @@ for (i in 1..data.rowCount) {
 
 // query Wikidata for the detected InChIKeys
 sparql = """
+PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 SELECT DISTINCT ?cmp ?inchikey WHERE {
   VALUES ?inchikey {
@@ -46,12 +47,20 @@ for (inchikey in mps.keySet()) {
 }
 sparql += """  }
   ?cmp wdt:P235 ?inchikey .
+  MINUS { ?cmp wdt:P31 wd:Q55662747 }
+  MINUS { ?cmp wdt:P31 wd:Q59199015 }
   MINUS { ?cmp wdt:P2101 ?mp }
 }
 """
 results = rdf.sparqlRemote(
   "https://query.wikidata.org/sparql", sparql
 )
+
+// results at all?
+if (results.rowCount == 0) {
+  println "No new melting points"
+  System.exit(0);
+}
 
 // create the QuickStatements
 for (i in 1..results.rowCount) {
