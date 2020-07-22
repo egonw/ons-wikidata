@@ -20,11 +20,11 @@
 // 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.9')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.12')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
@@ -278,9 +278,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
     if (compoundClassQ != null) classInfo = "Q$item\tP31\t$compoundClassQ"
 
+    typeInfo = "Q$item\tP31\tQ11173"
+
     statement = """
       $classInfo$paperProv
-      Q$item\tP31\tQ11173$paperProv\n"""
+      $typeInfo$paperProv\n"""
 
     // check for missing properties
     sparql = """
