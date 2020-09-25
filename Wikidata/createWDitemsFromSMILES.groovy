@@ -43,6 +43,7 @@ cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
 cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
 cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
+cli.o(longOpt: 'output-file', args:1, argName:'output', 'Name of the file where the quickstatements are stored')
 cli.l(longOpt: 'with-labels', 'Take the field after the SMILES as the label of the compound')
 def options = cli.parse(args)
 
@@ -88,6 +89,9 @@ if (options.identifier) {
 }
 
 qsFile = "/Wikidata/output.quickstatements"
+if (options.o) {
+  qsFile = options.o
+}
 
 // if all SMILES come from the same paper, enter the Wikidata item code
 // on the next line, e.g. paperQ = "Q22570477". It will be used as reference
