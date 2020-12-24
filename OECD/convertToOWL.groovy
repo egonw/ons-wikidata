@@ -1,9 +1,9 @@
-// Copyright (C) 2019  Egon Willighagen
+// Copyright (C) 2019-2020  Egon Willighagen
 // License: MIT
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.8')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.8')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.14')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.14')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
