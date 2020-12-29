@@ -312,7 +312,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
         if (results.get(1,"formula") == null || results.get(1,"formula").trim().length() == 0) statement += "      Q$item\tP274\t\"$formula\"\n"
         if (results.get(1,"key") == null || results.get(1,"key").trim().length() == 0)         statement += "      Q$item\tP235\t\"$key\"\n"
         if (results.get(1,"inchi") == null || results.get(1,"inchi").trim().length() == 0) {
-           if (inchiShort.length() <= 400) statement += "      Q$item\tP234\t\"$inchiShort\"\n"
+           if (inchiShort.length() <= 400) statement += "      Q$item\tP234\t\"InChI=$inchiShort\"\n"
         }
         if (results.get(1,"pubchem") == null || results.get(1,"pubchem").trim().length() == 0)     statement += "      $pubchemLine\n"
       }
@@ -362,7 +362,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       $item\tP274\t\"$formula\"
     """
     if (name.length() > 0) statement += "  $item\tLen\t\"${name}\"\n    "
-    if (inchiShort.length() <= 400) statement += "  $item\tP234\t\"$inchiShort\""
+    if (inchiShort.length() <= 400) statement += "  $item\tP234\t\"InChI=$inchiShort\""
     statement += """
       $item\tP235\t\"$key\"
       $pubchemLine
