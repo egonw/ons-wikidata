@@ -12,7 +12,7 @@
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
-//     https://tools.wmflabs.org/quickstatements/
+//     http://quickstatements.toolforge.org/
 //
 // Changelog:
 //
