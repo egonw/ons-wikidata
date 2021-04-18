@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2019  Egon Willighagen
+// Copyright (C) 2016-2021  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -20,11 +20,11 @@
 // 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.12')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.12')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.12')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.12')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.16')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.16')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.16')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.16')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.16')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
