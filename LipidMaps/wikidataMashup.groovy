@@ -9,26 +9,34 @@ bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 
-restAPI = "http://www.lipidmaps.org/rest/compound/lm_id/LM/all/download"
+String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+restAPI = "https://www.lipidmaps.org/rest/compound/lm_id/LM/all/download"
 propID = "P2063"
 
-allData = bioclipse.downloadAsFile(
-  restAPI, "/LipidMaps/lipidmaps.txt"
-)
-
-
-sparql = """
-PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-SELECT (substr(str(?compound),32) as ?wd) ?key ?lmid WHERE {
-  ?compound wdt:P235 ?key .
-  MINUS { ?compound wdt:${propID} ?lmid . }
+lipidmapstxt = "/LipidMaps/lipidmaps.txt"
+if (!ui.fileExists(lipidmapstxt)) {
+  allData = bioclipse.downloadAsFile(restAPI, lipidmapstxt)
 }
-"""
 
-if (bioclipse.isOnline()) {
-  results = rdf.sparqlRemote(
-    "https://query.wikidata.org/sparql", sparql
-  )
+cache = "/LipidMaps/wikidata.cached"
+if (ui.fileExists(cache)) {
+  // rawResults = 
+} else {
+  sparql = """
+  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+  SELECT (substr(str(?compound),32) as ?wd) ?key ?lmid WHERE {
+    ?compound wdt:P235 ?key .
+    MINUS { ?compound wdt:${propID} ?lmid . }
+  }
+  """
+  if (bioclipse.isOnline()) {
+    rawResults = bioclipse.sparqlRemote(
+      "https://query.wikidata.org/sparql", sparql
+    )
+    ui.append(cache, new String(rawResults))
+    results = rdf.processSPARQLXML(rawResults, sparql)
+  }
 }
 
 allpmidsSparql = """
@@ -37,7 +45,7 @@ SELECT (substr(str(?compound),32) as ?wd) ?key ?lmid WHERE {
   ?compound wdt:${propID} ?lmid .
 }
 """
-
+println allpmidsSparql
 if (bioclipse.isOnline()) {
   allpmidsResults = rdf.sparqlRemote(
     "https://query.wikidata.org/sparql", allpmidsSparql
@@ -72,7 +80,7 @@ for (i=1;i<=allpmidsResults.rowCount;i++) {
   lmidMap.put(rowVals[2], rowVals[0])
 }
 
-batchSize = 500
+batchSize = 50
 batchCounter = 0
 mappingContent = ""
 missingContent = ""
@@ -81,9 +89,9 @@ renewFile(mappingsFile)
 renewFile(missingCompoundFile)
 new File(bioclipse.fullPath("/LipidMaps/lipidmaps.txt")).eachLine{ line ->
   fields = line.split("\t")
-  if (fields.length > 15) {
+  if (fields.length > 14) {
     lmid = fields[1]
-    inchikey = fields[15]
+    inchikey = fields[14]
     if (inchikey != null && inchikey.length() > 10) {
       batchCounter++
       if (lmidMap.containsKey(lmid)) {
@@ -91,7 +99,7 @@ new File(bioclipse.fullPath("/LipidMaps/lipidmaps.txt")).eachLine{ line ->
       } else if (map.containsKey(inchikey)) {
         wdid = map.get(inchikey)
         if (!ignores.contains(wdid)) {
-          mappingContent += "${wdid}\t${propID}\t\"${lmid}\"\tS248\tQ20968889\tS854\t\"http://www.lipidmaps.org/rest/compound/lm_id/LM/all/download\"\tS813\t+2018-06-30T00:00:00Z/11\n"
+          mappingContent += "${wdid}\t${propID}\t\"${lmid}\"\tS248\tQ20968889\tS854\t\"http://www.lipidmaps.org/rest/compound/lm_id/LM/all/download\"\tS813\t+${date}T00:00:00Z/11\tS235\t\"${inchikey}\"\n"
         }  
       } else {
         missingContent += "${inchikey}\n"
