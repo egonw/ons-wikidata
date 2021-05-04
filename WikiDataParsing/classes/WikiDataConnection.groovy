@@ -39,4 +39,31 @@ class WikiDataConnection {
         return tools.getWikiData( this.workspaceRoot, this.endPoint,  queryString)
     }
 
+    /**@
+     * Check whether the compound currently exists in WikiData
+     * Check whether the properties of that compound exist
+     * Check whether the QID in pubchem matchers WikiData
+     * Two options:
+     * Query each compound and property
+     * Query all compounds and properties
+     */
+    def checkCompoundProperties() {
+        if (bioclipse.isOnline()) {
+            results = rdf.sparqlRemote(
+            'https://query.wikidata.org/sparql', sparql
+          )
+            // results check
+            missing = results.rowCount == 0
+
+            // Get the compound element from the first row of the results
+            pcExistingQcode = results.get(1, 'compound')
+
+            // Set the paper reference
+            if (paperQ != null) paperProv = "\tS248\t$paperQ"
+
+            item = existingQcode.substring(32)
+            pubchemLine = pubchemLine.replace('LAST', 'Q' + existingQcode.substring(32))
+        }
+    }
+
 }

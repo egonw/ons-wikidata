@@ -1,25 +1,33 @@
-import WikiDataProperty
-import ChemicalFormula
-import SparQL
-
-WDP = new WikiDataProperty()
-println WDP.canonicalSMILES
+import classes.WikiDataProperty
+import classes.ChemicalFormula
+import classes.WikiDataConnection
+import classes.Compound
 
 
-CF = new ChemicalFormula('0-1-2-3-4-5-6-7-8-9')
-println CF.modifyChemicalFormula(CF.formula, CF.subscript_map)
+// TESTING WikiData Property
+// WDP = new WikiDataProperty()
+// println WDP.canonicalSMILES
 
-query = """
-    PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-    SELECT ?compound ?formula ?key ?inchi ?smiles ?pubchem WHERE {
-      VALUES ?compound { <http://www.wikidata.org/entity/Q4835624> }
-      OPTIONAL { ?compound wdt:${WDP.canonicalSMILES} ?smiles }
-      OPTIONAL { ?compound wdt:P274 ?formula }
-      OPTIONAL { ?compound wdt:P235 ?key }
-      OPTIONAL { ?compound wdt:P234 ?inchi }
-      OPTIONAL { ?compound wdt:P662 ?pubchem }
-    }
-  """
-workspaceRoot = '..'
-spql = new SparQL(workspaceRoot, query)
-println spql.queryEndPoint()
+
+// TESTING Chemical Formula Class
+// CF = new ChemicalFormula('0-1-2-3-4-5-6-7-8-9')
+// println CF.modifyChemicalFormula(CF.formula, CF.subscript_map)
+
+
+// TESTING Compound Class Functionality
+// String workspaceRoot = '..'
+// String inchikey = 'UHOVQNZJYSORNB-UHFFFAOYSA-N'
+// cmpnd = new Compound(workspaceRoot, inchikey)
+// cmpnd.updateIsomeresFromInChI()
+// cmpnd.displayDetails()
+// println cmpnd.bactingDetails()
+
+
+// TESTING WikiData Connection Class
+String workspaceRoot = '..'
+WKC = new WikiDataConnection(workspaceRoot)
+
+query = 'PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?key WHERE { ?compound wdt:P235 ?key . } LIMIT 5'
+results = WKC.queryEndPoint(query)
+
+println results

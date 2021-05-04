@@ -39,6 +39,23 @@ def generateInChIObject(String workspaceRoot, String molecule) {
     return inchi.generate(molecule)
 }
 
+def generateInChI(String workspaceRoot, String smiles) {
+    println "Generating InChI Manager"
+    inchi = new net.bioclipse.managers.InChIManager(workspaceRoot);
+
+    println "Generating CDK manager"
+    cdk = new net.bioclipse.managers.CDKManager('..');
+
+    println "Generating mol"
+    mol = cdk.fromSMILES(smiles)
+
+    println "Generating inChI Object"
+    inChIObj = inchi.generate(mol)
+    // mol = getMoleculeFromSMILES(workspaceRoot, smiles)
+    println "Returning InChI object"
+    return inChIObj
+}
+
 /**@
 * TODO: Untested
 * Use bacting library to produce an CDKManager Object from a compound's smiles
