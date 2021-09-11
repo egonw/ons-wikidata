@@ -82,6 +82,6 @@ String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 println "qid,P2860,S248,s854,s813"
 map.each { citingDOI, qid ->
-  println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+  if (citingDOI != doi) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
 }
 
