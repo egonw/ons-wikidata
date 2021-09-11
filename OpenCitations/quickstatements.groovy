@@ -58,7 +58,7 @@ citingDOIs.each { doi ->
 }
 
 // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
-sparql = "SELECT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doi}\" }\n}"
+sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doi}\" }\n}"
 
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.sparqlRemote(
