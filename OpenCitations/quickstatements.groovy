@@ -19,6 +19,9 @@ ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited article')
@@ -49,12 +52,13 @@ data.each { citation ->
 
 println "Found DOI: ${citingDOIs.size()}"
 
-values = ""
+values = "\"${doi}\" \n" // we also need a QID for the cited article
 citingDOIs.each { doi ->
   values += "\"${doi.toUpperCase()}\" \n"
 }
 
-sparql = "SELECT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi\n}"
+// find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
+sparql = "SELECT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doi}\" }\n}"
 
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.sparqlRemote(
@@ -70,4 +74,14 @@ for (i=1;i<=results.rowCount;i++) {
   map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
 }
 
-println "" + map
+citedQID = map.get(doi)
+
+// println "" + map
+
+String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+println "qid,P2860,S248,s854,s813"
+map.each { citingDOI, qid ->
+  println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+}
+
