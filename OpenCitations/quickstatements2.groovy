@@ -6,10 +6,13 @@
 //   Give it a DOI and it will fetch citations to that article from OpenCitations to other articles
 //   and match this up with Wikidata for "cites" statements.
 //
+//   > groovy quickstatements2.groovy -d 10.1021/ACS.JCIM.0C01299
+//
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
 //     https://tools.wmflabs.org/quickstatements/
 //
+//   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.22')
