@@ -36,7 +36,7 @@ if (options.help) {
 }
 
 if (options.doi) {
-  doi = options.d
+  doi = options.d.toUpperCase()
 } else {
   cli.usage()
   System.exit(0)
