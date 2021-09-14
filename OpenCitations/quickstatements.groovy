@@ -15,6 +15,7 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
+@Grab(group = 'commons-codec', module = 'commons-codec', version = '1.11')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.22')
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.22')
 workspaceRoot = ".."
