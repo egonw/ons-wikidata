@@ -52,9 +52,9 @@ citingDOIs = new java.util.HashSet()
 data.each { citation -> citingDOIs.add(citation.citing) }
 println "Found citing DOIs: ${citingDOIs.size()}"
 
-cociURL = new URL("https://opencitations.net/index/coci/api/v1/references/${doi}")
-println "Fetching ${doi} from ${cociURL}..."
-data2 = new groovy.json.JsonSlurper().parseText(cociURL.text)
+coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doi}")
+println "Fetching ${doi} from ${coci2URL}..."
+data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
 citedDOIs = new java.util.HashSet()
 data2.each { citation -> citedDOIs.add(citation.cited) }
 println "Found cited DOIs: ${citedDOIs.size()}"
@@ -113,6 +113,6 @@ for (i=1;i<=results.rowCount;i++) {
 citingQID = map.get(doi)
 println "# cited articles"
 map.each { citedDOI, qid ->
-  if (citedDOI != doi) println "${citingQID},${qid},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+  if (citedDOI != doi) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
 }
 
