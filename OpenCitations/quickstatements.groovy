@@ -16,8 +16,8 @@
 
 // Bacting config
 @Grab(group = 'commons-codec', module = 'commons-codec', version = '1.11')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.22')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.22')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.25')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.25')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
