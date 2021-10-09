@@ -15,6 +15,7 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
+@Grab(group='org.slf4j', module='slf4j-simple', version='1.7.32')
 @Grab(group = 'commons-codec', module = 'commons-codec', version = '1.11')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.25')
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.25')
