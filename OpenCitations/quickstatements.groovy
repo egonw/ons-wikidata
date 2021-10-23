@@ -6,7 +6,7 @@
 //   Give it a DOI and it will fetch citations to that article from OpenCitations to other articles
 //   and match this up with Wikidata for "cites" statements.
 //
-//   > groovy quickstatements.groovy -d 10.1021/ACS.JCIM.0C01299
+//   > groovy quickstatements.groovy -d 10.1021/ACS.JCIM.0C01299 > output.qs
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
@@ -47,18 +47,18 @@ if (options.doi) {
 String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doi}")
-println "Fetching ${doi} from ${cociURL}..."
+println "# Fetching ${doi} from ${cociURL}..."
 data = new groovy.json.JsonSlurper().parseText(cociURL.text)
 citingDOIs = new java.util.HashSet()
 data.each { citation -> citingDOIs.add(citation.citing) }
-println "Found citing DOIs: ${citingDOIs.size()}"
+println "# Found citing DOIs: ${citingDOIs.size()}"
 
 coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doi}")
-println "Fetching ${doi} from ${coci2URL}..."
+println "# Fetching ${doi} from ${coci2URL}..."
 data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
 citedDOIs = new java.util.HashSet()
 data2.each { citation -> citedDOIs.add(citation.cited) }
-println "Found cited DOIs: ${citedDOIs.size()}"
+println "# Found cited DOIs: ${citedDOIs.size()}"
 
 // citing papers
 
