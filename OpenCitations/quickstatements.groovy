@@ -1,5 +1,6 @@
 // Copyright (C) 2021  Egon Willighagen
 // License: MIT
+// If you use this software, please check the CITATION.cff file 
 
 // Usage:
 //
