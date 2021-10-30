@@ -28,7 +28,7 @@ rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
+def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited article')
 def options = cli.parse(args)
