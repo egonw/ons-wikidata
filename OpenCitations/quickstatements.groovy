@@ -30,7 +30,8 @@ import java.util.Date;
 
 def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
-cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited article')
+cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
+cli.l(longOpt: 'list', args:1, argName:'list', 'name of a fil with a list of DOI of the cited/citing article')
 def options = cli.parse(args)
 
 if (options.help) {
@@ -38,83 +39,102 @@ if (options.help) {
   System.exit(0)
 }
 
+if (options.doi && options.list) {
+  println("Error: -d and -l cannot be used at the same time")
+  System.exit(-1)
+}
+
+if (!options.doi && !options.list) {
+  println("Error: Either -d or -l must be given")
+  System.exit(-1)
+}
+
+doisToProcess = new ArrayList<String>();
+
 if (options.doi) {
-  doi = options.d.toUpperCase()
-} else {
-  cli.usage()
-  System.exit(0)
+  doisToProcess.add(options.d.toUpperCase())
 }
 
-String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-
-cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doi}")
-println "# Fetching ${doi} from ${cociURL}..."
-data = new groovy.json.JsonSlurper().parseText(cociURL.text)
-citingDOIs = new java.util.HashSet()
-data.each { citation -> citingDOIs.add(citation.citing) }
-println "# Found citing DOIs: ${citingDOIs.size()}"
-
-coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doi}")
-println "# Fetching ${doi} from ${coci2URL}..."
-data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
-citedDOIs = new java.util.HashSet()
-data2.each { citation -> citedDOIs.add(citation.cited) }
-println "# Found cited DOIs: ${citedDOIs.size()}"
-
-// citing papers
-
-values = "\"${doi}\" \n" // we also need a QID for the cited article
-citingDOIs.each { doi ->
-  values += "\"${doi.toUpperCase()}\" \n"
+if (options.list) {
+  doiFile = new File(options.l)
+  if (!doiFile.exists()) {
+    println("Error: File ${doiFile} does not exist")
+    System.exit(-1)
+  }
+  doisToProcess = (doiFile as List)
 }
 
-// find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
-sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doi}\" }\n}"
-if (bioclipse.isOnline()) {
-  rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
-  results = rdf.processSPARQLXML(rawResults, sparql)
-}
-
-// make a map
-map = new HashMap<String,String>()
-for (i=1;i<=results.rowCount;i++) {
-  rowVals = results.getRow(i)
-  map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
-}
-
-citedQID = map.get(doi)
 println "qid,P2860,S248,s854,s813"
-println "# citing articles"
-map.each { citingDOI, qid ->
-  if (citingDOI != doi) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+
+doisToProcess.each { doiToProcess ->
+  String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+  cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doiToProcess}")
+  println "# Fetching ${doiToProcess} from ${cociURL} ..."
+  data = new groovy.json.JsonSlurper().parseText(cociURL.text)
+  citingDOIs = new java.util.HashSet()
+  data.each { citation -> citingDOIs.add(citation.citing) }
+  println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
+
+  coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doiToProcess}")
+  println "# Fetching ${doiToProcess} from ${coci2URL} ..."
+  data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
+  citedDOIs = new java.util.HashSet()
+  data2.each { citation -> citedDOIs.add(citation.cited) }
+  println("# Found cited DOIs for ${doiToProcess}: ${citedDOIs.size()}")
+
+  // citing papers
+
+  // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
+  values = "\"${doiToProcess}\" \n" // we also need a QID for the cited article
+  citingDOIs.each { doi ->
+    values += "\"${doi.toUpperCase()}\" \n"
+  }
+  sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
+  if (bioclipse.isOnline()) {
+    rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+    results = rdf.processSPARQLXML(rawResults, sparql)
+  }
+  // make a map
+  map = new HashMap<String,String>()
+  for (i=1;i<=results.rowCount;i++) {
+    rowVals = results.getRow(i)
+    map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
+  }
+
+  citedQID = map.get(doiToProcess)
+  println "# citing articles for ${doiToProcess}"
+  map.each { citingDOI, qid ->
+    if (citingDOI != doiToProcess) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+  }
+
+  // cited papers
+
+  values = "\"${doiToProcess}\" \n" // we also need a QID for the citing article
+  citedDOIs.each { doi ->
+    values += "\"${doi.toUpperCase()}\" \n"
+  }
+
+  // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
+  sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
+  if (bioclipse.isOnline()) {
+    rawResults = bioclipse.sparqlRemote(
+      "https://query.wikidata.org/sparql", sparql
+    )
+    results = rdf.processSPARQLXML(rawResults, sparql)
+  }
+
+  // make a map
+  map = new HashMap<String,String>()
+  for (i=1;i<=results.rowCount;i++) {
+    rowVals = results.getRow(i)
+    map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
+  }
+
+  citingQID = map.get(doiToProcess)
+  println "# cited articles for ${doiToProcess}"
+  map.each { citedDOI, qid ->
+    if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
+  }
+
 }
-
-// cited papers
-
-values = "\"${doi}\" \n" // we also need a QID for the citing article
-citedDOIs.each { doi ->
-  values += "\"${doi.toUpperCase()}\" \n"
-}
-
-// find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
-sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doi}\" ; wdt:P2860 ?work }\n}"
-if (bioclipse.isOnline()) {
-  rawResults = bioclipse.sparqlRemote(
-    "https://query.wikidata.org/sparql", sparql
-  )
-  results = rdf.processSPARQLXML(rawResults, sparql)
-}
-
-// make a map
-map = new HashMap<String,String>()
-for (i=1;i<=results.rowCount;i++) {
-  rowVals = results.getRow(i)
-  map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
-}
-
-citingQID = map.get(doi)
-println "# cited articles"
-map.each { citedDOI, qid ->
-  if (citedDOI != doi) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
-}
-
