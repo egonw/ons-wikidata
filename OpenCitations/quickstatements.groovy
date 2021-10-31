@@ -31,7 +31,7 @@ import java.util.Date;
 def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
-cli.l(longOpt: 'list', args:1, argName:'list', 'name of a fil with a list of DOI of the cited/citing article')
+cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing article')
 def options = cli.parse(args)
 
 if (options.help) {
