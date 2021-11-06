@@ -12,6 +12,9 @@
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.26')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.26')
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
@@ -19,7 +22,8 @@ rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
 
 property = "P8691" // SwissLipids identifier
-source = null
+source = "Q41165322"
+referenceURL = "https://www.swisslipids.org/#/downloads"
 
 input = "/ExtIdentifiers/swisslipids_ids.tsv"
 splitString = ","
@@ -81,6 +85,7 @@ missingContent = ""
 print "Saved a batch"
 renewFile(mappingsFile)
 renewFile(missingCompoundFile)
+String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 new File(bioclipse.fullPath(input)).eachLine{ line ->
   fields = (splitString != null) ? line.split(splitString) : line.split()
   if (fields.length < 2) {
@@ -92,11 +97,10 @@ new File(bioclipse.fullPath(input)).eachLine{ line ->
   if (map.containsKey(inchikey)) {
     wdid = map.get(inchikey)
     if (!ignores.contains(wdid)) {
-      if (source) {
-        mappingContent += "${wdid}\t${property}\t\"${extid}\"\tS248\t${source}\n"
-      } else {
-        mappingContent += "${wdid}\t${property}\t\"${extid}\"\n"
-      }
+      mappingContent += "${wdid}\t${property}\t\"${extid}\"" +
+        ((source == null) ? "" : "\tS248\t${source}") +
+        ((referenceURL == null) ? "" : "\tS854\t${referenceURL}") +
+        "\tS813\t${date}T00:00:00Z/11\n";
     }
   } else if (!existingMappings.contains(inchikey)) {
     missingContent += "${inchikey}\n"
