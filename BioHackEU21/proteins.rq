@@ -1,0 +1,3 @@
+SELECT (substr(str(?protein),32) as ?wd)  WHERE {
+   ?protein wdt:P352 ?uniprot .
+}

@@ -1,0 +1,3 @@
+SELECT (substr(str(?gene),32) as ?wd)  WHERE {
+   ?gene wdt:P594 ?ensembl .
+}
