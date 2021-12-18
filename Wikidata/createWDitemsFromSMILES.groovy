@@ -135,6 +135,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
     // if (fields.length == 3) (inchikey, extid, smiles) = fields
     if (fields.length == 3) (smiles, extid, name) = fields
+    if (fields.length == 1) smiles = fields[0]
   } else {
     smiles = line
     id = "LAST"
