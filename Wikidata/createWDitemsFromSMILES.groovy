@@ -20,11 +20,11 @@
 // 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.22')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.22')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.22')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.22')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.22')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.28')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.28')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.28')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.28')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.28')
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
@@ -135,6 +135,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
     // if (fields.length == 3) (inchikey, extid, smiles) = fields
     if (fields.length == 3) (smiles, extid, name) = fields
+    if (fields.length == 1) smiles = fields[0]
   } else {
     smiles = line
     id = "LAST"
