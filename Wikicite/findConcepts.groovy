@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
