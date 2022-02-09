@@ -1,5 +1,5 @@
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.11')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.11')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,6 +13,7 @@ String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 restAPI = "https://www.lipidmaps.org/rest/compound/lm_id/LM/all/download"
 propID = "P2063"
+property = propID
 
 lipidmapstxt = "/LipidMaps/lipidmaps.txt"
 if (!ui.fileExists(lipidmapstxt)) {
@@ -25,16 +26,19 @@ if (ui.fileExists(cache)) {
 } else {
   sparql = """
   PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-  SELECT (substr(str(?compound),32) as ?wd) ?key ?lmid WHERE {
-    ?compound wdt:P235 ?key .
-    MINUS { ?compound wdt:${propID} ?lmid . }
+  SELECT ?wd ?key ?value WHERE {
+    SERVICE <https://query.wikidata.org/sparql> {
+      SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
+        ?compound wdt:P235 ?key .
+        OPTIONAL { ?compound wdt:${property} ?value . }
+      }
+    }
   }
   """
   if (bioclipse.isOnline()) {
     rawResults = bioclipse.sparqlRemote(
-      "https://query.wikidata.org/sparql", sparql
+      "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
     )
-    ui.append(cache, new String(rawResults))
     results = rdf.processSPARQLXML(rawResults, sparql)
   }
 }
