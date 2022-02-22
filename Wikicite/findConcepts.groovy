@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2019  Egon Willighagen
+// Copyright (C) 2018-2022  Egon Willighagen
 //               2018       Denise Slenter
 // License: MIT
 
@@ -18,6 +18,8 @@
 @Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.31')
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
+
+import groovy.cli.commons.CliBuilder
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
