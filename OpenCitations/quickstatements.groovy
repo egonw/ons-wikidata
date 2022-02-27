@@ -18,8 +18,11 @@
 // Bacting config
 @Grab(group='org.slf4j', module='slf4j-simple', version='1.7.32')
 @Grab(group = 'commons-codec', module = 'commons-codec', version = '1.11')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.25')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.25')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
+
+import groovy.cli.commons.CliBuilder
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
