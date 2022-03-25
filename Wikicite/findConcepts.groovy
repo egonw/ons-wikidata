@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.31')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.33')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.33')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.33')
 
 import groovy.cli.commons.CliBuilder
 
@@ -61,8 +61,8 @@ blacklist = [
 
 concept = concept.toLowerCase()
 
-totalArticleCount = 20000000
-batchSize = 100000
+totalArticleCount = 30000000
+batchSize = totalArticleCount
 
 start = startBatch*batchSize
 
@@ -80,22 +80,26 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
 1.upto(rounds) { counter ->
   print "batch ${counter}/${rounds}: "
   offset = start + (counter-1)*batchSize
+  // query based on example by Lucas Werkmeister in the Wikidata Telegram group
   sparql = """
-    SELECT ?art ?artLabel
-    WITH {
-      SELECT ?art WHERE {
-        ?art wdt:P31 wd:Q13442814
-      } LIMIT $batchSize OFFSET $offset
-    } AS %RESULTS { 
-      INCLUDE %RESULTS
-      MINUS { ?art wdt:P921 wd:$conceptQ }
-      ?art wdt:P1476 ?artLabel .
-      FILTER (contains(lcase(str(?artLabel)), "$concept"))
+    SELECT ?art ?artTitle
+    WHERE {
+      SERVICE wikibase:mwapi {
+        bd:serviceParam wikibase:endpoint "www.wikidata.org";
+          wikibase:api "Search";
+          mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ";
+          mwapi:srlimit "max".
+        ?art wikibase:apiOutputItem mwapi:title.
+      }
+      ?art wdt:P1476 ?artTitle.
+      FILTER (contains(lcase(str(?artTitle)), "$concept"))
     }
   """
   if (bioclipse.isOnline()) {
     try {
+      // print sparql
       rawResults = bioclipse.sparqlRemote(
+        // "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
         "https://query.wikidata.org/sparql", sparql
       )
       results = rdf.processSPARQLXML(rawResults, sparql)
@@ -105,7 +109,7 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
         printlnOutput = ""
         fileOutput = ""
         1.upto(results.rowCount) { artCounter ->
-          artTitle = results.get(artCounter, "artLabel")
+          artTitle = results.get(artCounter, "artTitle")
           blacklisted = false
           blacklist.each { badWord ->
             if (artTitle.toLowerCase().contains(badWord.toLowerCase())) {
@@ -127,9 +131,10 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
       }
     } catch (Exception exception) {
       println "Error while retrieving this batch: " + exception.message
+      exception.printStackTrace()
     }
   } else {
     println "no online access"
   }
 }
-ui.open(qsFile)
+//ui.open(qsFile)
