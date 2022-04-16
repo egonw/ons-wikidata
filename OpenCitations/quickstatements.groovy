@@ -70,6 +70,7 @@ if (options.list) {
 println "qid,P2860,S248,s854,s813"
 
 doisToProcess.each { doiToProcess ->
+  doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
   cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doiToProcess}")
