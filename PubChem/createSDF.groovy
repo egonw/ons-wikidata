@@ -1,9 +1,9 @@
-// Copyright (C) 2019  Egon Willighagen
+// Copyright (C) 2019-2022  Egon Willighagen
 // License: MIT
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.9')
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.9')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.34')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.34')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.34')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
@@ -12,24 +12,26 @@ bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
 
 // do it in a few runs, so that errors from PubChem are easier to handle
-batches = 4        // 200k compounds max
-batchSize = 50000
 regIDs = new HashSet<String>();
 
-1.upto(4) { batchCounter ->
-  // the following query gets all chemical with a canonical or isomeric SMILES
+batches   = 1
+batchSize = 1500000
+
+1.upto(batches) { batchCounter ->
   offset = (batchCounter - 1) * batchSize
+  // the following query gets all chemical with a canonical or isomeric SMILES
   sparql = """
-    SELECT (STR(?chemicalRes) as ?chemical) ?chemicalResLabel ?canonical ?isomeric WITH {
-      SELECT DISTINCT ?chemicalRes WHERE {
-        ?chemicalRes wdt:P233 | wdt:P2017 [] .
-      } ORDER BY ASC(?chemicalRes) LIMIT ${batchSize} OFFSET ${offset}
-    } AS %CHEMICALS { 
-      INCLUDE %CHEMICALS
-      OPTIONAL { ?chemicalRes wdt:P233 ?canonical }
-      OPTIONAL { ?chemicalRes wdt:P2017 ?isomeric }
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+  SELECT ?chemical ?smiles WHERE {
+    SERVICE <https://query.wikidata.org/sparql> {
+      SELECT DISTINCT ?chemical ?smiles WHERE {
+        ?chemical wdt:P233 | wdt:P2017 [] .
+        OPTIONAL { ?chemical wdt:P233 ?canonical }
+        OPTIONAL { ?chemical wdt:P2017 ?isomeric }
+        BIND (COALESCE(?isomeric, ?canonical) AS ?smiles)
+      }
     }
+  } LIMIT ${batchSize} OFFSET ${offset}
   """
 
   output = "/PubChem/wikidata_${batchCounter}.csv"
@@ -37,39 +39,31 @@ regIDs = new HashSet<String>();
 
   ui.append(output,
     "PUBCHEM_EXT_DATASOURCE_REGID," +
-    "PUBCHEM_SUBSTANCE_SYNONYM," +
     "PUBCHEM_EXT_SUBSTANCE_URL," +
     "PUBCHEM_EXT_DATASOURCE_SMILES\n"
   )
   if (bioclipse.isOnline()) {
     try {
       rawResults = bioclipse.sparqlRemote(
-        "https://query.wikidata.org/sparql", sparql
+        // "https://query.wikidata.org/sparql", sparql
+        "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
       )
       results = rdf.processSPARQLXML(rawResults, sparql)
       1.upto(results.rowCount) { chemCounter ->
         wdid   = results.get(chemCounter, "chemical")
-        label  = results.get(chemCounter, "chemicalResLabel")
-        canSmi = results.get(chemCounter, "canonical")
-        isoSmi = results.get(chemCounter, "isomeric")
-        outSmi = (isoSmi ? isoSmi : canSmi)
+        smiles = results.get(chemCounter, "smiles")
         qid = wdid.substring(31)
         if (!regIDs.contains(qid) &&
-            !outSmi.contains(" ") && // ignore entries with spaces in the SMILES
-            !outSmi.contains("[R1]") // ignore entries with R1 in the SMILES
+            !smiles.contains(" ") && // ignore entries with spaces in the SMILES
+            !smiles.contains("[R1]")) // ignore entries with R1 in the SMILES
         {
           regIDs.add(qid)
           try {
-            mol = cdk.fromSMILES(outSmi)
+            smiles = smiles.replace("\\\\","\\")
+            mol = cdk.fromSMILES(smiles)
             outCmp = "${qid},"
-            label = label.replaceAll("\"", "''").replaceAll('\n',"").replaceAll('\r',"")
-            if (label.contains(",")) {
-              outCmp += "\"" + label + "\","
-            } else {
-              outCmp += label + ","
-            }
             outCmp += "https://scholia.toolforge.org/${qid},"
-            outCmp += "$outSmi\n"
+            outCmp += "${smiles}\n"
             ui.append(output, outCmp)
           } catch (Exception exception) {
             println("${qid}: ${exception.message}")
