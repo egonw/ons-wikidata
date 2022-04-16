@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2021  Egon Willighagen
+// Copyright (C) 2016-2022  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -20,11 +20,14 @@
 // 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.28')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.28')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.28')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.28')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.28')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.34')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.34')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.34')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.34')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.34')
+
+import groovy.cli.commons.CliBuilder
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
@@ -143,6 +146,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   compoundQ = null
   
   mol = cdk.fromSMILES(smiles)
+  println "Parsed $smiles into $mol"
   
   smilesProp = "P233"
   if (smiles.contains("@") ||
@@ -161,9 +165,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   }
   """
   if (bioclipse.isOnline()) {
-    results = rdf.sparqlRemote(
+    rawResults = bioclipse.sparqlRemote(
       "https://query.wikidata.org/sparql", sparql
     )
+    results = rdf.processSPARQLXML(rawResults, sparql)
     missing = results.rowCount == 0
     if (!missing) {
       existingQcode = results.get(1,"compound")
@@ -184,9 +189,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   }
   """
   if (bioclipse.isOnline()) {
-    results = rdf.sparqlRemote(
+    rawResults = bioclipse.sparqlRemote(
       "https://query.wikidata.org/sparql", sparql
     )
+    results = rdf.processSPARQLXML(rawResults, sparql)
     idMissing = results.rowCount == 0
     if (!idMissing) {
       existingQcode = results.get(1,"compound")
@@ -221,9 +227,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   	  """
 
         if (bioclipse.isOnline()) {
-  	    results = rdf.sparqlRemote(
+          rawResults = bioclipse.sparqlRemote(
             "https://query.wikidata.org/sparql", sparql
-  	    )
+          )
+          results = rdf.processSPARQLXML(rawResults, sparql)
   	    missing = results.rowCount == 0
   	    if (!missing) {
     	      pcExistingQcode = results.get(1,"compound")
@@ -302,9 +309,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       }
     """
     if (bioclipse.isOnline()) {
-      results = rdf.sparqlRemote(
+      rawResults = bioclipse.sparqlRemote(
         "https://query.wikidata.org/sparql", sparql
       )
+      results = rdf.processSPARQLXML(rawResults, sparql)
       missing = results.rowCount == 0
       if (!missing) {
         if (results.get(1,"smiles") == null || results.get(1,"smiles").trim().length() == 0) {
