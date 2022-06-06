@@ -7,6 +7,8 @@
 @Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.jsoup', version='0.0.37')
 
 import groovy.json.JsonSlurper
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 bioclipse = new net.bioclipse.managers.BioclipseManager(".")
 rdf = new net.bioclipse.managers.RDFManager(".")
@@ -14,7 +16,7 @@ rdf = new net.bioclipse.managers.RDFManager(".")
 def parser = new JsonSlurper()
 
 // single package
-npmPkgs = [ "citation-js" ]
+npmPkgs = [ "sync-fetch" ]
 
 // OR all packages in Wikidata
 
@@ -27,7 +29,7 @@ SELECT DISTINCT ?npm WHERE {
 results = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
 npmPkgs = results.getColumn("npm")
 
-println "qid,P1547"
+println "qid,P1547,S854,s813"
 
 npmPkgs.each { npm ->
   // STEP 0: figure out what package this Wikidata item is for
@@ -43,7 +45,8 @@ npmPkgs.each { npm ->
   qid = results.get(1, "qid")
   println("# package: $npm ($qid)")
 
-  jsonText = bioclipse.download("https://registry.npmjs.com/$npm")
+  registryURL = "https://registry.npmjs.com/$npm"
+  jsonText = bioclipse.download(registryURL)
   //println(jsonText)
 
   def jsonResp = parser.parseText(jsonText)
@@ -67,12 +70,13 @@ npmPkgs.each { npm ->
       MINUS { $qid wdt:P1547 ?package }
     }"""
     results = rdf.sparqlRemote("https://query.wikidata.org/sparql", sparql)
+    date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
     for (i=1;i<=results.rowCount;i++) {
       rowVals = results.getRow(i)
       qid = qid.replace("wd:","")
       pkg = rowVals[0].replace("wd:","")
-      println("$qid,$pkg")
+      println("$qid,$pkg,\"\"\"${registryURL}\"\"\",+${date}T00:00:00Z/11")
     }
   }
 }
