@@ -87,8 +87,10 @@ if (options.identifier) {
     case "chemspider": idProperty = "P661"; break
     case "pubchem": idProperty = "P662"; break
     case "pdb": idProperty = "P3636"; break
+    case "nmr": idProperty = "P9405"; break // nmrshiftdb
     default: println "Unknown identifier database: ${options.identifier}"; System.exit(-1)
   }
+  if (idProperty != null) println "ID found: ${idProperty}"
 }
 
 qsFile = "/Wikidata/output.quickstatements"
