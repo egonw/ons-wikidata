@@ -379,7 +379,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       $pubchemLine
     """
 
-    if (idProperty != null && idProperty != "" && !pubchemLine.contains("P662")) {
+    if (idProperty != null && idProperty != "") {
+      if (idProperty == "P662" && pubchemLine.contains("P662")) {} else
       statement += "  $item\t$idProperty\t\"$extid\"$paperProv"
     }
 
