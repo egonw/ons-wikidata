@@ -288,7 +288,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
     if (compoundClassQ != null) classInfo = "Q$item\tP31\t$compoundClassQ"
 
-    typeInfo = "Q$item\tP31\tQ11173"
+    if (fullChiralityIsDefined) {
+      typeInfo = "Q$item\tP31\tQ11173" // chemical compound
+    } else {
+      typeInfo = "Q$item\tP31\tQ59199015" // group of stereoisomers
+    }
 
     statement = """
       $classInfo$paperProv
