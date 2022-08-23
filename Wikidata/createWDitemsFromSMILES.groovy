@@ -71,10 +71,6 @@ if (options.c) {
 
 idProperty = null
 if (options.identifier) {
-  if (outputLabel) {
-    System.out("Cannot take both a label and an indentifier from the input")
-    System.exit(-1)
-  }
   switch (options.identifier.toLowerCase()) {
     case "hmdb": idProperty = "P2057"; break
     case "comptox": idProperty = "P3117"; break
