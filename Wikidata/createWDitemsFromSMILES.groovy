@@ -204,6 +204,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   missing = missing && (!extidFound)
 
   formula = upgradeChemFormula(cdk.molecularFormula(mol))
+  mass = cdk.calculateMass(mol)
   
   // Create the Wikidata QuickStatement, see https://tools.wmflabs.org/wikidata-todo/quick_statements.php
   
@@ -302,13 +303,14 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     // check for missing properties
     sparql = """
       PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-      SELECT ?compound ?formula ?key ?inchi ?smiles ?pubchem WHERE {
+      SELECT ?compound ?formula ?key ?inchi ?smiles ?pubchem ?mass WHERE {
         VALUES ?compound { <${existingQcode}> }
         OPTIONAL { ?compound wdt:$smilesProp ?smiles }
         OPTIONAL { ?compound wdt:P274 ?formula }
         OPTIONAL { ?compound wdt:P235 ?key }
         OPTIONAL { ?compound wdt:P234 ?inchi }
         OPTIONAL { ?compound wdt:P662 ?pubchem }
+        OPTIONAL { ?compound wdt:P2067 ?mass }
       }
     """
     if (bioclipse.isOnline()) {
@@ -325,6 +327,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
         }
         if (results.get(1,"formula") == null || results.get(1,"formula").trim().length() == 0) {
           statement += "      Q$item\tP274\t\"$formula\"\n"
+          newInfo = true
+        }
+        if (results.get(1,"mass") == null || results.get(1,"mass").trim().length() == 0) {
+          statement += "      Q$item\tP2067\t${mass}U483261\n"
           newInfo = true
         }
         if (results.get(1,"key") == null || results.get(1,"key").trim().length() == 0) {
@@ -390,6 +396,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       $item\tDen\t\"chemical compound\"$paperProv
       $item\t$smilesProp\t\"$smiles\"
       $item\tP274\t\"$formula\"
+      $item\tP2067\t${mass}U483261
     """
     if (name.length() > 0) statement += "  $item\tLen\t\"${name}\"\n    "
     if (inchiShort.length() <= 400) statement += "  $item\tP234\t\"InChI=$inchiShort\""
