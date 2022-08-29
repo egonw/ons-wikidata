@@ -355,9 +355,6 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       newInfo = true
     }
 
-    if (newInfo)
-      statement = "\n      $typeInfo$paperProv"
-
     ui.append(qsFile, statement + "\n")
     
     // Recon stuff
