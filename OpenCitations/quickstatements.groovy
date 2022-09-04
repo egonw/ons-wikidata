@@ -1,13 +1,15 @@
 // Copyright (C) 2021  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
-
+//
+// OpenCitations Access token: get an access token at https://opencitations.net/accesstoken
+//
 // Usage:
 //
 //   Give it a DOI and it will fetch citations to that article from OpenCitations to other articles
 //   and match this up with Wikidata for "cites" statements.
 //
-//   > groovy quickstatements.groovy -d 10.1021/ACS.JCIM.0C01299 > output.qs
+//   > groovy quickstatements.groovy -t token -d 10.1021/ACS.JCIM.0C01299 > output.qs
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
@@ -16,10 +18,8 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='org.slf4j', module='slf4j-simple', version='1.7.32')
-@Grab(group = 'commons-codec', module = 'commons-codec', version = '1.11')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.45')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.45')
 
 import groovy.cli.commons.CliBuilder
 
@@ -33,6 +33,7 @@ import java.util.Date;
 
 def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
+cli.t(longOpt: 'token', args:1, argName:'token', 'OpenCitations Access Token')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
 cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing article')
 def options = cli.parse(args)
@@ -41,6 +42,17 @@ if (options.help) {
   cli.usage()
   System.exit(0)
 }
+
+httpParams = new HashMap();
+if (!options.token) {
+  println("Error: An OpenCitations Access Token must be given. See https://opencitations.net/accesstoken")
+  System.exit(-1)
+} else {
+  httpParams.put("authorization", options.d)
+}
+
+token = options.t
+
 
 if (options.doi && options.list) {
   println("Error: -d and -l cannot be used at the same time")
@@ -70,6 +82,7 @@ if (options.list) {
 println "qid,P2860,S248,s854,s813"
 
 doisToProcess.each { doiToProcess ->
+  sleep(250)
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
