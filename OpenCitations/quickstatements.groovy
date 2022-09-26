@@ -7,9 +7,13 @@
 // Usage:
 //
 //   Give it a DOI and it will fetch citations to that article from OpenCitations to other articles
-//   and match this up with Wikidata for "cites" statements.
+//   and match this up with Wikidata for "cites" statements. In the following command, replace
+//   'token' with your personal token.
 //
 //   > groovy quickstatements.groovy -t token -d 10.1021/ACS.JCIM.0C01299 > output.qs
+//
+//   Alternatively, use the -l option to point to a file with a list of DOIs. The output is the
+//   the same. The -h option gives additional help.
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
