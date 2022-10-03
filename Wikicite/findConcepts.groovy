@@ -74,7 +74,7 @@ def renewFile(file) {
 
 qsFile = "/Wikicite/output." + concept.replace(" ", "_") + ".quickstatements"
 renewFile(qsFile)
-ui.append(qsFile, "qid,P921,#\n")
+ui.append(qsFile, "qid,P921,qal887,#\n")
 
 rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
 1.upto(rounds) { counter ->
@@ -121,7 +121,7 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
             artQ = artIRI.substring(31)
             printlnOutput += "${artQ}\t${artTitle}\n"
             artTitle = artTitle.replaceAll(",", ";")
-            fileOutput += "${artQ},${conceptQ},${artTitle}\n"
+            fileOutput += "${artQ},${conceptQ},Q69652283,${artTitle}\n"
           }
         }
         print(printlnOutput)
