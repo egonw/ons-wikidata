@@ -13,7 +13,7 @@
 //   > groovy quickstatements.groovy -t token -d 10.1021/ACS.JCIM.0C01299 > output.qs
 //
 //   Alternatively, use the -l option to point to a file with a list of DOIs. The output is the
-//   the same. The -h option gives additional help.
+//   the same. The -h option gives additional help about these and other options.
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
@@ -42,6 +42,7 @@ cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
 cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing article')
 cli.i(longOpt: 'incoming-only', 'Only DOIs of the citing articles')
 cli.o(longOpt: 'outgoing-only', 'Only DOIs of the cited articles')
+cli.r(longOpt: 'report', args:1, argName:'report', 'Report citing or cited DOIs not found in Wikidata yet in the given file')
 def options = cli.parse(args)
 
 if (options.help) {
@@ -58,7 +59,6 @@ if (!options.token) {
 }
 
 token = options.t
-
 
 if (options.doi && options.list) {
   println("Error: -d and -l cannot be used at the same time")
@@ -90,6 +90,9 @@ println "qid,P2860,S248,s854,s813"
 if (options.o) println "# Only reporting cited articles"
 if (options.i) println "# Only reporting citing articles"
 
+if (options.report) println "# Reporting missing DOIs in the file ${options.report}"
+
+missingDOIs = new java.util.HashSet()
 doisToProcess.each { doiToProcess ->
   sleep(250)
   doiToProcess = doiToProcess.toUpperCase()
@@ -100,7 +103,7 @@ doisToProcess.each { doiToProcess ->
     cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${cociURL} ..."
     data = new groovy.json.JsonSlurper().parseText(cociURL.text)
-    data.each { citation -> citingDOIs.add(citation.citing) }
+    data.each { citation -> citingDOIs.add(citation.citing.toUpperCase()) }
     println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
 
     // citing papers
@@ -127,6 +130,21 @@ doisToProcess.each { doiToProcess ->
     map.each { citingDOI, qid ->
       if (citingDOI != doiToProcess) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
     }
+
+    if (options.report) {
+      // report all the DOIs that are not in Wikidata
+      sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
+      if (bioclipse.isOnline()) {
+        rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+        results = rdf.processSPARQLXML(rawResults, sparql)
+      }
+      for (i=1;i<=results.rowCount;i++) {
+        rowVals = results.getRow(i)
+        citingDOIs.remove(rowVals[1])
+      }
+      println "# DOIs citing ${doiToProcess} that are not in Wikidata: ${citingDOIs.size()}"
+      missingDOIs.addAll(citingDOIs)
+    }
   }
 
   citedDOIs = new java.util.HashSet()
@@ -134,7 +152,7 @@ doisToProcess.each { doiToProcess ->
     coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${coci2URL} ..."
     data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
-    data2.each { citation -> citedDOIs.add(citation.cited) }
+    data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
     println("# Found cited DOIs for ${doiToProcess}: ${citedDOIs.size()}")
 
     // cited papers
@@ -165,6 +183,30 @@ doisToProcess.each { doiToProcess ->
     map.each { citedDOI, qid ->
       if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
     }
+
+    if (options.report) {
+      // report all the DOIs that are not in Wikidata
+      sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
+      if (bioclipse.isOnline()) {
+        rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+        results = rdf.processSPARQLXML(rawResults, sparql)
+      }
+      for (i=1;i<=results.rowCount;i++) {
+        rowVals = results.getRow(i)
+        citedDOIs.remove(rowVals[1])
+      }
+      println "# DOIs citing ${doiToProcess} that are not in Wikidata: ${citedDOIs.size()}"
+      missingDOIs.addAll(citedDOIs)
+    }
   }
 
+}
+
+if (options.report) {
+  // report missing DOIs
+  new File("${options.report}").withWriter { out ->
+    missingDOIs.each {
+      out.println it
+    }
+  }
 }
