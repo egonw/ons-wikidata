@@ -1,5 +1,6 @@
-@Grab(group='io.github.egonw.bacting', module='managers-excel', version='0.0.9-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.9-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-excel', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.1.2')
 
 workspaceRoot = ".."
 println "Initializing the managers..."
