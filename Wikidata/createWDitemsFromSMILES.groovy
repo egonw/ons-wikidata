@@ -13,18 +13,13 @@
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
 //     http://quickstatements.toolforge.org/
-//
-// Changelog:
-//
-// 2018-12-02 Added a changelog
-// 2018-12-01 Added a feature to set a superclass
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.42')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.42')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.42')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.42')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.42')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.1.2')
 
 import groovy.cli.commons.CliBuilder
 
@@ -41,7 +36,10 @@ smiFile = "/Wikidata/cas.smi";
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full stereochemistry defined')
+cli.e(longOpt: 'existing-only', 'Only output statements for existing chemicals')
 cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
+cli.x(longOpt: 'exclude-disconnected-compounds', 'Exclude all disconnected compounds, like salts')
+cli.q(longOpt: 'exclude-charged-compounds', 'Exclude all charged compounds, like ions')
 cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
 cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
@@ -215,7 +213,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     try {
       pcResults = pubchem.search(key)
       sleep(250) // keep PubChem happy
-      if (pcResults.size == 1) {
+      if (pcResults.SIZE == 1) {
         cid = pcResults[0]
         pubchemLine = "$item\tP662\t\"$cid\""
   	  sparql = """
@@ -262,6 +260,13 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   undefinedCenters = cdk.getAtomsWithUndefinedStereo(mol)
   fullChiralityIsDefined = undefinedCenters.size() == 0
   ignoreBecauseStereoMissing =  options.s && !fullChiralityIsDefined
+  
+  totalFormalCharge = cdk.totalFormalCharge(mol)
+  isCharged = (totalFormalCharge != 0)
+  ignoreBecauseCharged = options.q && isCharged
+
+  isDisconnected = (cdk.partition(mol).size() > 1)
+  ignoreBecauseDisconnected = options.x && isDisconnected
 
   if (!missing && options.'non-existing-only') {
     println "===================="
@@ -326,20 +331,20 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
            }
         }
         if (results.get(1,"formula") == null || results.get(1,"formula").trim().length() == 0) {
-          statement += "      Q$item\tP274\t\"$formula\"\n"
+          statement += "      Q$item\tP274\t\"$formula\"\tS887\tQ113907573\n"
           newInfo = true
         }
         if (results.get(1,"mass") == null || results.get(1,"mass").trim().length() == 0) {
-          statement += "      Q$item\tP2067\t${mass}U483261\n"
+          statement += "      Q$item\tP2067\t${mass}U483261\tS887\tQ113907573\n"
           newInfo = true
         }
         if (results.get(1,"key") == null || results.get(1,"key").trim().length() == 0) {
-          statement += "      Q$item\tP235\t\"$key\"\n"
+          statement += "      Q$item\tP235\t\"$key\"\tS887\tQ113907573\n"
           newInfo = true
         }
         if (results.get(1,"inchi") == null || results.get(1,"inchi").trim().length() == 0) {
           if (inchiShort.length() <= 400) {
-            statement += "      Q$item\tP234\t\"InChI=$inchiShort\"\n"
+            statement += "      Q$item\tP234\t\"InChI=$inchiShort\"\tS887\tQ113907573\n"
             newInfo = true
           }
         }
@@ -371,13 +376,25 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
     println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
     println "===================="
-  } else if (!ignoreBecauseStereoMissing) {
+  } else if (ignoreBecauseCharged) {
+    println "===================="
+    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println "Compound is charged. skipping"
+    println "===================="
+  } else if (ignoreBecauseDisconnected) {
+    println "===================="
+    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println "Compound is disconnected. skipping"
+    println "===================="
+  } else if (!ignoreBecauseStereoMissing && !ignoreBecauseCharged && !ignoreBecauseDisconnected && !options.e) {
     println "===================="
     println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
+      typeInfo = "$item\tP31\tQ11173" // chemical compound
     } else {
       println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
+      typeInfo = "$item\tP31\tQ59199015" // group of stereoisomers
     }
 
     if (item == "LAST") {
@@ -385,18 +402,18 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       CREATE
       """
     } else statement = ""
-   
+
     if (compoundClassQ != null) statement += "$item\tP31\t$compoundClassQ$paperProv\n"
    
     statement += """
-      $item\tP31\tQ11173$paperProv
+      $typeInfo
       $item\tDen\t\"chemical compound\"$paperProv
-      $item\t$smilesProp\t\"$smiles\"
-      $item\tP274\t\"$formula\"
-      $item\tP2067\t${mass}U483261
+      $item\t$smilesProp\t\"$smiles\"\tS887\tQ113907573
+      $item\tP274\t\"$formula\"\tS887\tQ113907573
+      $item\tP2067\t${mass}U483261\tS887\tQ113907573
     """
     if (name.length() > 0) statement += "  $item\tLen\t\"${name}\"\n    "
-    if (inchiShort.length() <= 400) statement += "  $item\tP234\t\"InChI=$inchiShort\""
+    if (inchiShort.length() <= 400) statement += "  $item\tP234\t\"InChI=$inchiShort\"\tS887\tQ113907573"
     statement += """
       $item\tP235\t\"$key\"
       $pubchemLine
