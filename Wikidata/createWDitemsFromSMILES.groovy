@@ -34,18 +34,18 @@ pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 smiFile = "/Wikidata/cas.smi"; 
 
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
-cli.h(longOpt: 'help', 'print this message')
-cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full stereochemistry defined')
-cli.e(longOpt: 'existing-only', 'Only output statements for existing chemicals')
-cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
-cli.x(longOpt: 'exclude-disconnected-compounds', 'Exclude all disconnected compounds, like salts')
-cli.q(longOpt: 'exclude-charged-compounds', 'Exclude all charged compounds, like ions')
-cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
-cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
+cli.e(longOpt: 'existing-only', 'Only output statements for existing chemicals')
 cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
-cli.o(longOpt: 'output-file', args:1, argName:'output', 'Name of the file where the quickstatements are stored')
+cli.h(longOpt: 'help', 'print this message')
+cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.l(longOpt: 'with-labels', 'Take the field after the SMILES as the label of the compound')
+cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
+cli.o(longOpt: 'output-file', args:1, argName:'output', 'Name of the file where the quickstatements are stored')
+cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
+cli.q(longOpt: 'exclude-charged-compounds', 'Exclude all charged compounds, like ions')
+cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full stereochemistry defined')
+cli.x(longOpt: 'exclude-disconnected-compounds', 'Exclude all disconnected compounds, like salts')
 def options = cli.parse(args)
 
 if (options.help) {
