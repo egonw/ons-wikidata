@@ -1,5 +1,5 @@
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.31')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.31')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.2')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,6 +23,7 @@ if (!ui.fileExists(lipidmapstxt)) {
 cache = "/LipidMaps/wikidata.cached"
 if (ui.fileExists(cache)) {
   // rawResults = 
+  results = rdf.processSPARQLXML(rawResults, sparql)
 } else {
   sparql = """
   PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -39,6 +40,7 @@ if (ui.fileExists(cache)) {
     rawResults = bioclipse.sparqlRemote(
       "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
     )
+    ui.append(cache, rawResults)
     results = rdf.processSPARQLXML(rawResults, sparql)
   }
 }
@@ -103,10 +105,10 @@ new File(bioclipse.fullPath("/LipidMaps/lipidmaps.txt")).eachLine{ line ->
       } else if (map.containsKey(inchikey)) {
         wdid = map.get(inchikey)
         if (!ignores.contains(wdid)) {
-          mappingContent += "${wdid}\t${propID}\t\"${lmid}\"\tS248\tQ20968889\tS854\t\"http://www.lipidmaps.org/rest/compound/lm_id/LM/all/download\"\tS813\t+${date}T00:00:00Z/11\tS235\t\"${inchikey}\"\n"
+          mappingContent += "${wdid}\t${propID}\t\"${lmid}\"\tS248\tQ20968889\tS854\t\"http://www.lipidmaps.org/rest/compound/lm_id/LM/all/download\"\tS813\t+${date}T00:00:00Z/11\tS235\t\"${inchikey}\"\tS887\tQ100452164\n"
         }  
       } else {
-        missingContent += "${inchikey}\n"
+        missingContent += "${inchikey}\t${lmid}\n"
       }
     }
   }
