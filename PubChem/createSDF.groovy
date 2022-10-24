@@ -1,6 +1,7 @@
 // Copyright (C) 2019-2022  Egon Willighagen
 // License: MIT
 
+@Grab(group='org.slf4j', module='slf4j-simple', version='1.7.32')
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.34')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.34')
 @Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.34')
@@ -36,6 +37,8 @@ batchSize = 1500000
 
   output = "/PubChem/wikidata_${batchCounter}.csv"
   ui.renewFile(output)
+  error1 = "/PubChem/wikidata_${batchCounter}_fixes1.qs"
+  ui.renewFile(error1)
 
   ui.append(output,
     "PUBCHEM_EXT_DATASOURCE_REGID," +
@@ -53,13 +56,22 @@ batchSize = 1500000
         wdid   = results.get(chemCounter, "chemical")
         smiles = results.get(chemCounter, "smiles")
         qid = wdid.substring(31)
-        if (!regIDs.contains(qid) &&
-            !smiles.contains(" ") && // ignore entries with spaces in the SMILES
-            !smiles.contains("[R1]")) // ignore entries with R1 in the SMILES
-        {
+        if (regIDs.contains(qid)) { // skip
+        } else if (smiles.contains(" ")) {
+          // ignore entries with spaces in the SMILES
+          println("${qid}: SMILES with space: ${smiles}")
+        } else if (smiles.contains("[R1]")) {
+          // ignore entries with R1 in the SMILES
+          println("${qid}: SMILES with R group: ${smiles}")
+        } else {
           regIDs.add(qid)
           try {
-            smiles = smiles.replace("\\\\","\\")
+            if (smiles.contains("\\\\")) {
+              println("${qid}: SMILES with double backslash: ${smiles}")
+              ui.append(error1, "-${qid}\tP2017\t\"${smiles}\"\n")
+              smiles = smiles.replace("\\\\","\\")
+              ui.append(error1, "${qid}\tP2017\t\"${smiles}\"\n")
+            }
             mol = cdk.fromSMILES(smiles)
             outCmp = "${qid},"
             outCmp += "https://scholia.toolforge.org/${qid},"
