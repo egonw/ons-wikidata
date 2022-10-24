@@ -222,7 +222,9 @@ if (options.r || options.R) {
       if (options.r) {
         // check if the DOI is from a (recognized) preprint server
         if (!(
-          it.startsWith("10.1101") || // bioRxviv
+          it.contains("rxiv") || // any Rxiv
+          it.contains("RXIV") || // any Rxiv
+          it.startsWith("10.1101") || // bioRxiv
           it.startsWith("10.21203"))) // ResearchSquare
           out.println it
       } else {
