@@ -1,14 +1,15 @@
-// Copyright (C) 2019  Egon Willighagen
+// Copyright (C) 2019-2022  Egon Willighagen
 // License: MIT
 
 //   Takes a list of InChIs and fetches SMILES for them from PubChem.
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.1.2')
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 cdk = new net.bioclipse.managers.CDKManager(workspaceRoot);
@@ -17,9 +18,11 @@ inchi = new net.bioclipse.managers.InChIManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 
-inchiFile = "/Wikidata/pfas.inchis"
+inchiFile = "/Wikidata/wp_inchikeys.txt"
 idIndex = null
 inchikeyIndex = 0
+
+pubchemTimeout = 400
 
 sparql = """
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -45,8 +48,8 @@ new File(bioclipse.fullPath(inchiFile)).eachLine { line ->
   if (line.contains("\t")) {
     fields = line.trim().split("\t")
     inchikey = fields[inchikeyIndex]
-    if (idIndex != null)    extid = fields[idIndex]
-    if (fields.length == 3) name = fields[2]
+    // if (fields.length > 1)    extid = fields[1]
+    if (fields.length == 2) name = fields[1]
   } else {
     inchikey = line.trim()
   }
@@ -56,9 +59,10 @@ new File(bioclipse.fullPath(inchiFile)).eachLine { line ->
     return
   }
 
-  sleep(150) // keep PubChem happy
+  sleep(pubchemTimeout) // keep PubChem happy
   try {
-    smiles = bioclipse.download("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/${inchikey}/property/IsomericSMILES/TXT")
+    url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/${inchikey}/property/IsomericSMILES/TXT"
+    smiles = bioclipse.download(url)
     String[] smiLines = smiles.split("\r\n|\r|\n");
     if (smiLines.length > 1) {
       println "# Multiple SMILES returned for $inchikey"
@@ -70,7 +74,8 @@ new File(bioclipse.fullPath(inchiFile)).eachLine { line ->
     atomsWithUndefinedStereo = cdk.getAtomsWithUndefinedStereo(mol)
     if (atomsWithUndefinedStereo.size() > 0) {
       println "# Molecule has ${atomsWithUndefinedStereo.size()} undefined stereo atoms: ${smiles}"
-      return
+      // return
+      // okay for now
     } else {
       // println "# Molecule has no undefined stereo atoms"
     }
@@ -83,11 +88,18 @@ new File(bioclipse.fullPath(inchiFile)).eachLine { line ->
     if (extid != null) {
       output += "\t" + extid
     }
-    if (name != null) {
+    if (name != null && name.length() != 0) {
       output += "\t" + name
+    } else {
+      try {
+        sleep(pubchemTimeout) // keep PubChem happy
+        names = bioclipse.download("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/${inchikey}/property/IUPACName/TXT")
+        String[] nameLines = names.split("\r\n|\r|\n");
+        name = nameLines[0]
+        if (!names.contains("Status: 404")) output += "\t" + name
+      } catch (Exception e) { e.printStackTrace() }
     }
     println output
   } catch (Exception e) { println "# ${inchikey} exception: " + e.message }
 }
-
 
