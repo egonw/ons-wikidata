@@ -45,6 +45,7 @@ cli.o(longOpt: 'output-file', args:1, argName:'output', 'Name of the file where 
 cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
 cli.q(longOpt: 'exclude-charged-compounds', 'Exclude all charged compounds, like ions')
 cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full stereochemistry defined')
+cli.t(longOpt: 'taxon', args:1, argName:'taxon', 'QID of the taxon in which this compound is found')
 cli.x(longOpt: 'exclude-disconnected-compounds', 'Exclude all disconnected compounds, like salts')
 def options = cli.parse(args)
 
@@ -90,6 +91,11 @@ if (options.identifier) {
 qsFile = "/Wikidata/output.quickstatements"
 if (options.o) {
   qsFile = options.o
+}
+
+taxonQID = null
+if (options.t) {
+  taxonQID = options.t
 }
 
 // if all SMILES come from the same paper, enter the Wikidata item code
@@ -302,8 +308,12 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       typeInfo = "Q$item\tP31\tQ59199015" // group of stereoisomers
     }
 
-    statement = """
-      $classInfo$paperProv\n"""
+    if (classInfo != "") {
+      statement = """
+        $classInfo$paperProv\n"""
+    } else {
+      statement = ""
+    }
 
     // check for missing properties
     sparql = """
@@ -359,6 +369,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       statement += "      Q$item\t$idProperty\t\"$extid\"$paperProv\n"
       newInfo = true
     }
+    
+    if (taxonQID != null) {
+      statement += "      Q$item\tP703\t$taxonQID$paperProv\n"
+      newInfo = true
+    }
 
     ui.append(qsFile, statement + "\n")
     
@@ -412,7 +427,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       $item\tP274\t\"$formula\"\tS887\tQ113907573
       $item\tP2067\t${mass}U483261\tS887\tQ113907573
     """
-    if (name.length() > 0) statement += "  $item\tLen\t\"${name}\"\n    "
+    if (name.length() > 0) {
+      if (name.length() < 200) statement += "  $item\tLen\t\"${name}\"\n    "
+      else statement += "  $item\tLen\t\"${key}\"\n    "
+    }
     if (inchiShort.length() <= 400) statement += "  $item\tP234\t\"InChI=$inchiShort\"\tS887\tQ113907573"
     statement += """
       $item\tP235\t\"$key\"
