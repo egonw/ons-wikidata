@@ -42,11 +42,17 @@ cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
 cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing article')
 cli.i(longOpt: 'incoming-only', 'Only DOIs of the citing articles')
 cli.o(longOpt: 'outgoing-only', 'Only DOIs of the cited articles')
-cli.r(longOpt: 'report', args:1, argName:'report', 'Report citing or cited DOIs not found in Wikidata yet in the given file')
+cli.r(longOpt: 'report', args:1, argName:'report', 'Report citing or cited DOIs (excluding preprints) not found in Wikidata yet in the given file')
+cli.R(longOpt: 'report-preprints-too', args:1, argName:'report', 'Report citing or cited DOIs not found in Wikidata yet in the given file')
 def options = cli.parse(args)
 
 if (options.help) {
   cli.usage()
+  System.exit(0)
+}
+
+if (options.r && options.R) {
+  println("Error: -r and -R cannot be used at the same time")
   System.exit(0)
 }
 
@@ -208,11 +214,20 @@ doisToProcess.each { doiToProcess ->
 
 }
 
-if (options.report) {
+if (options.r || options.R) {
   // report missing DOIs
-  new File("${options.report}").withWriter { out ->
+  reportFile = options.r ? options.r : options.R
+  new File(reportFile).withWriter { out ->
     missingDOIs.each {
-      out.println it
+      if (options.r) {
+        // check if the DOI is from a (recognized) preprint server
+        if (!(
+          it.startsWith("10.1101") || // bioRxviv
+          it.startsWith("10.21203"))) // ResearchSquare
+          out.println it
+      } else {
+        out.println it
+      }
     }
   }
 }
