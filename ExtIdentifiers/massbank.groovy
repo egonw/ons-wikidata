@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2019  Egon Willighagen
+// Copyright (C) 2018-2022  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -8,21 +8,25 @@
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
 //     https://tools.wmflabs.org/quickstatements/
+//
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.45')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.45')
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.11')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.11')
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 
+String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 property = "P6689" // Massbank Accession ID
-source = null
+source = "Q113696454" // doi: 10.5281/zenodo.7046820
 
-input = "/ExtIdentifiers/Accession_to_InChi-Key.txt"
-splitString = null
+input = "/ExtIdentifiers/220931_massbank_records_v2022.06_to_wikidata.csv"
+splitString = ","
 idIndex = 0
 inchikeyIndex = 1
 
@@ -31,19 +35,19 @@ ignores = new java.util.HashSet();
 
 sparql = """
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-SELECT (substr(str(?compound),32) as ?wd) ?key ?value WITH {
-  SELECT ?compound ?key WHERE {
-    ?compound wdt:P235 ?key .
+SELECT ?wd ?key ?value WHERE {
+  SERVICE <https://query.wikidata.org/sparql> {
+    SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
+      ?compound wdt:P235 ?key .
+      OPTIONAL { ?compound wdt:${property} ?value . }
+    }
   }
-} AS %INCHIKEYS {
-  INCLUDE %INCHIKEYS
-  OPTIONAL { ?compound wdt:${property} ?value . }
 }
 """
 
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.sparqlRemote(
-    "https://query.wikidata.org/sparql", sparql
+    "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
   )
   results = rdf.processSPARQLXML(rawResults, sparql)
 }
@@ -87,9 +91,9 @@ new File(bioclipse.fullPath(input)).eachLine{ line ->
     wdid = map.get(inchikey)
     if (!ignores.contains(wdid)) {
       if (source) {
-        mappingContent += "${wdid}\t${property}\t\"${extid}\"\tS248\t${source}\n"
+        mappingContent += "${wdid}\t${property}\t\"${extid}\"\tS248\t${source}\tS813\t+${date}T00:00:00Z/11\tS235\t\"${inchikey}\"\tS887\tQ100452164\n"
       } else {
-        mappingContent += "${wdid}\t${property}\t\"${extid}\"\n"
+        mappingContent += "${wdid}\t${property}\t\"${extid}\"\tS813\t+${date}T00:00:00Z/11\tS235\t\"${inchikey}\"\tS887\tQ100452164\n"
       }
     }
   } else if (!existingMappings.contains(inchikey)) {
