@@ -216,9 +216,10 @@ doisToProcess.each { doiToProcess ->
 
 if (options.r || options.R) {
   // report missing DOIs
-  new File("${options.report}").withWriter { out ->
+  reportFile = options.r ? options.r : options.R
+  new File(reportFile).withWriter { out ->
     missingDOIs.each {
-      if (option.r) {
+      if (options.r) {
         // check if the DOI is from a (recognized) preprint server
         if (!(
           it.startsWith("10.1101") || // bioRxviv
