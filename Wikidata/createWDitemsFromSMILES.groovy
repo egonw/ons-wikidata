@@ -219,9 +219,9 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     try {
       pcResults = pubchem.search(key)
       sleep(250) // keep PubChem happy
-      if (pcResults.SIZE == 1) {
+      if (pcResults.size() == 1) {
         cid = pcResults[0]
-        pubchemLine = "$item\tP662\t\"$cid\""
+        pubchemLine = "$item\tP662\t\"$cid\"\tS887\tQ113993940"
   	  sparql = """
   	  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
     	  SELECT ?compound WHERE {
@@ -254,6 +254,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
           println "no online access"
   	    missing = true
   	  }
+      } else {
+        println "PubChem hits: $pcResults"
       }
     } catch (Exception exception) {
       println "Error while accessing PubChem: ${exception.message}"
