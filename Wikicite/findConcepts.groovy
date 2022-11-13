@@ -21,10 +21,15 @@
 
 import groovy.cli.commons.CliBuilder
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
+
+String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 batchSize = 100000
 
@@ -74,7 +79,7 @@ def renewFile(file) {
 
 qsFile = "/Wikicite/output." + concept.replace(" ", "_") + ".quickstatements"
 renewFile(qsFile)
-ui.append(qsFile, "qid,P921,qal887,#\n")
+ui.append(qsFile, "qid,P921,S887,s1932,s813,#\n")
 
 rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
 1.upto(rounds) { counter ->
@@ -121,7 +126,7 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
             artQ = artIRI.substring(31)
             printlnOutput += "${artQ}\t${artTitle}\n"
             artTitle = artTitle.replaceAll(",", ";")
-            fileOutput += "${artQ},${conceptQ},Q69652283,${artTitle}\n"
+            fileOutput += "${artQ},${conceptQ},Q69652283,\"\"\"$concept\"\"\",+${date}T00:00:00Z/11,${artTitle}\n"
           }
         }
         print(printlnOutput)
