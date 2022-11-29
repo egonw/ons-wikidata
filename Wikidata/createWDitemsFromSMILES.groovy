@@ -530,8 +530,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       $typeInfo
       $item\tDen\t\"chemical compound\"$paperProv
       $item\t$smilesProp\t\"$smiles\"\t$basedOnHeuristicProp\t$smilesInferredItem
-      $item\tP274\t\"$formula\"\t$basedOnHeuristicProp\t$smilesInferredItem
-      $item\tP2067\t${mass}$daltonUnit\t$basedOnHeuristicProp\t$smilesInferredItem
+      $item\t$chemFormulaProp\t\"$formula\"\t$basedOnHeuristicProp\t$smilesInferredItem
+      $item\t$massProp\t${mass}$daltonUnit\t$basedOnHeuristicProp\t$smilesInferredItem
     """
     if (name.length() > 0) {
       if (name.length() < 200) statement += "  $item\tLen\t\"${name}\"\n    "
