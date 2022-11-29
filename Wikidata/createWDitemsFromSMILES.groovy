@@ -99,6 +99,50 @@ if (options.c) {
   compoundClassQ = options.c
 }
 
+// look up the mappings in the Wikibase
+if (options.w && options.a) {
+  wikibaseServer = options.w
+  exactMatchProperty = options.a
+  sparqlEP = "https://${wikibaseServer}/query/sparql"
+
+  // prepare a SPARQL query to find the mappings
+  wdProperties = ""
+  for (prop : propertyMappings.keySet()) {
+    wdProperties += "wd:$prop "
+  }
+  mappingQuery = """
+PREFIX wd:  <http://www.wikidata.org/entity/>
+PREFIX wdt: <https://${wikibaseServer}/prop/direct/>
+
+SELECT ?wdprop ?prop ?propLabel WHERE {
+  VALUES ?wdprop { $wdProperties }
+  ?prop wdt:${exactMatchProperty} ?wdprop .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
+"""
+  rawResults = bioclipse.sparqlRemote(sparqlEP, mappingQuery)
+  results = rdf.processSPARQLXML(rawResults, mappingQuery)
+  println results
+
+  // update the propertyMappings to match the Wikibase
+  for (i=1;i<=results.rowCount;i++) {
+    rowVals = results.getRow(i)
+    wdItem = rowVals[0].substring(31)
+    localItem = rowVals[1].substring(16 + wikibaseServer.length())
+    propertyMappings.replace(wdItem, localItem)
+  }
+  println propertyMappings
+  for (prop : propertyMappings.keySet()) {
+    if (prop == propertyMappings.get(prop)) {
+      println "#Warning: $prop is not set in the Wikibase"
+    }
+  }
+} else if (options.w) {
+  println "ERROR: if -w is given, -a must be given too"
+} else if (options.a) {
+  println "ERROR: if -a is given, -w must be given too"
+}
+
 idProperty = null
 if (options.identifier) {
   switch (options.identifier.toLowerCase()) {
