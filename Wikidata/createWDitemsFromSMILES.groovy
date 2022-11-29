@@ -65,6 +65,7 @@ propertyMappings.put("Q113907573", "Q113907573") // inferred from SMILES
 propertyMappings.put("Q113993940", "Q113993940") // inferred from InChIKey
 
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
+cli.a(longOpt: 'exactMatch', args:1, argName:'exactMatch', 'Property ID (Px) in the Wikibase to match against Wikidata (only when -w is given)')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
 cli.e(longOpt: 'existing-only', 'Only output statements for existing chemicals')
 cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
@@ -77,6 +78,7 @@ cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs 
 cli.q(longOpt: 'exclude-charged-compounds', 'Exclude all charged compounds, like ions')
 cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full stereochemistry defined')
 cli.t(longOpt: 'taxon', args:1, argName:'taxon', 'QID of the taxon in which this compound is found')
+cli.w(longOpt: 'wikibase', args:1, argName:'wikibase', 'URL of the Wikibase to use, if different from www.wikidata.org')
 cli.x(longOpt: 'exclude-disconnected-compounds', 'Exclude all disconnected compounds, like salts')
 def options = cli.parse(args)
 
@@ -99,10 +101,16 @@ if (options.c) {
   compoundClassQ = options.c
 }
 
+sparqlEP = "https://query.wikidata.org/sparql"
+serverIRIprotocol = "http"
+wikibaseServer = "www.wikidata.org"
+
 // look up the mappings in the Wikibase
 if (options.w && options.a) {
   wikibaseServer = options.w
   exactMatchProperty = options.a
+
+  serverIRIprotocol = "https" // the Wikibases have httpS based IRIs
   sparqlEP = "https://${wikibaseServer}/query/sparql"
 
   // prepare a SPARQL query to find the mappings
@@ -112,7 +120,7 @@ if (options.w && options.a) {
   }
   mappingQuery = """
 PREFIX wd:  <http://www.wikidata.org/entity/>
-PREFIX wdt: <https://${wikibaseServer}/prop/direct/>
+PREFIX wdt: <${serverIRIprotocol}://${wikibaseServer}/prop/direct/>
 
 SELECT ?wdprop ?prop ?propLabel WHERE {
   VALUES ?wdprop { $wdProperties }
@@ -120,6 +128,8 @@ SELECT ?wdprop ?prop ?propLabel WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 }
 """
+  println mappingQuery
+  println sparqlEP
   rawResults = bioclipse.sparqlRemote(sparqlEP, mappingQuery)
   results = rdf.processSPARQLXML(rawResults, mappingQuery)
   println results
@@ -253,14 +263,16 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
   // check for duplicate based on the InChIKey
   sparql = """
-  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+  PREFIX wdt: <${serverIRIprotocol}://${wikibaseServer}/prop/direct/>
   SELECT ?compound WHERE {
     ?compound wdt:$inchikeyProp "$key" .
   }
   """
+  println sparql
+  println sparqlEP
   if (bioclipse.isOnline()) {
     rawResults = bioclipse.sparqlRemote(
-      "https://query.wikidata.org/sparql", sparql
+      sparqlEP, sparql
     )
     results = rdf.processSPARQLXML(rawResults, sparql)
     missing = results.rowCount == 0
@@ -277,14 +289,14 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   // check for duplicate based on the given identifier (with $idProperty)
   extidFound = false
   sparql = """
-  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+  PREFIX wdt: <${serverIRIprotocol}://${wikibaseServer}/prop/direct/>
   SELECT ?compound WHERE {
     ?compound wdt:$idProperty "$extid" .
   }
   """
   if (bioclipse.isOnline()) {
     rawResults = bioclipse.sparqlRemote(
-      "https://query.wikidata.org/sparql", sparql
+      sparqlEP, sparql
     )
     results = rdf.processSPARQLXML(rawResults, sparql)
     idMissing = results.rowCount == 0
@@ -315,7 +327,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
         cid = pcResults[0]
         pubchemLine = "$item\t$pubchemProp\t\"$cid\"\t$basedOnHeuristicProp\t$inchikeyInferredItem"
   	  sparql = """
-  	  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+  	  PREFIX wdt: <${serverIRIprotocol}://${wikibaseServer}/prop/direct/>
     	  SELECT ?compound WHERE {
           ?compound wdt:$pubchemProp "$cid" .
   	  }
@@ -323,7 +335,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
         if (bioclipse.isOnline()) {
           rawResults = bioclipse.sparqlRemote(
-            "https://query.wikidata.org/sparql", sparql
+            sparqlEP, sparql
           )
           results = rdf.processSPARQLXML(rawResults, sparql)
   	    missing = results.rowCount == 0
@@ -411,7 +423,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
     // check for missing properties
     sparql = """
-      PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+      PREFIX wdt: <${serverIRIprotocol}://${wikibaseServer}/prop/direct/>
       SELECT ?compound ?formula ?key ?inchi ?smiles ?pubchem ?mass WHERE {
         VALUES ?compound { <${existingQcode}> }
         OPTIONAL { ?compound wdt:$smilesProp ?smiles }
@@ -424,7 +436,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     """
     if (bioclipse.isOnline()) {
       rawResults = bioclipse.sparqlRemote(
-        "https://query.wikidata.org/sparql", sparql
+        sparqlEP, sparql
       )
       results = rdf.processSPARQLXML(rawResults, sparql)
       missing = results.rowCount == 0
