@@ -401,8 +401,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
     }
 
-    item = existingQcode.substring(32)
-    pubchemLine = pubchemLine.replace("LAST", "Q" + existingQcode.substring(32))
+    item = existingQcode.split("/Q")[1]
+    pubchemLine = pubchemLine.replace("LAST", "Q" + item)
 
     if (compoundClassQ != null) classInfo = "Q$item\t$instanceOfProp\t$compoundClassQ"
 
