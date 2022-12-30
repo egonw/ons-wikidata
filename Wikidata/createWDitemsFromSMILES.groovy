@@ -128,11 +128,8 @@ SELECT ?wdprop ?prop ?propLabel WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 }
 """
-  println mappingQuery
-  println sparqlEP
   rawResults = bioclipse.sparqlRemote(sparqlEP, mappingQuery)
   results = rdf.processSPARQLXML(rawResults, mappingQuery)
-  println results
 
   // update the propertyMappings to match the Wikibase
   for (i=1;i<=results.rowCount;i++) {
@@ -141,7 +138,6 @@ SELECT ?wdprop ?prop ?propLabel WHERE {
     localItem = rowVals[1].substring(16 + wikibaseServer.length())
     propertyMappings.replace(wdItem, localItem)
   }
-  println propertyMappings
   for (prop : propertyMappings.keySet()) {
     if (prop == propertyMappings.get(prop)) {
       println "#Warning: $prop is not set in the Wikibase"
@@ -471,7 +467,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       }
     }
   
-    if (idProperty != null && idProperty != "" && idProperty != $pubchemProp && !extidFound) {
+    if (idProperty != null && idProperty != "" && idProperty != pubchemProp && !extidFound) {
       statement += "      Q$item\t$idProperty\t\"$extid\"$paperProv\n"
       newInfo = true
     }
