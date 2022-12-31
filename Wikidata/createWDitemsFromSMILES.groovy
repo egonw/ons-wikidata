@@ -264,8 +264,6 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     ?compound wdt:$inchikeyProp "$key" .
   }
   """
-  println sparql
-  println sparqlEP
   if (bioclipse.isOnline()) {
     rawResults = bioclipse.sparqlRemote(
       sparqlEP, sparql
