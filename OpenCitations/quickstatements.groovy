@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2022  Egon Willighagen
+// Copyright (C) 2021-2023  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
 //
@@ -22,8 +22,8 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.2')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.0')
 
 import groovy.cli.commons.CliBuilder
 
@@ -134,7 +134,7 @@ doisToProcess.each { doiToProcess ->
       citedQID = map.get(doiToProcess)
       println "# citing articles for ${doiToProcess}"
       map.each { citingDOI, qid ->
-        if (citingDOI != doiToProcess) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+        if (citingDOI != doiToProcess && citedQID != null) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
       }
 
       if (options.report) {
