@@ -523,7 +523,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     statement += """
       $typeInfo
       $item\tDen\t\"chemical compound\"$paperProv
-      $item\t$smilesProp\t\"$smiles\"\t$basedOnHeuristicProp\t$smilesInferredItem
+      $item\t$smilesProp\t\"$smiles\"\t$basedOnHeuristicProp
       $item\t$chemFormulaProp\t\"$formula\"\t$basedOnHeuristicProp\t$smilesInferredItem
       $item\t$massProp\t${mass}$daltonUnit\t$basedOnHeuristicProp\t$smilesInferredItem
     """
@@ -533,7 +533,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
     if (inchiShort.length() <= 400) statement += "  $item\t$inchiProp\t\"InChI=$inchiShort\"\t$basedOnHeuristicProp\t$smilesInferredItem"
     statement += """
-      $item\t$inchikeyProp\t\"$key\"
+      $item\t$inchikeyProp\t\"$key\"\t$smilesInferredItem
       $pubchemLine
     """
 
