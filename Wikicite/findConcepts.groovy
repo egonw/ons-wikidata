@@ -64,6 +64,7 @@ blacklist = [
 
 // the code (don't change)
 
+originalConcept = concept
 concept = concept.toLowerCase()
 
 totalArticleCount = 30000000
@@ -126,7 +127,7 @@ rounds = (int)Math.ceil((totalArticleCount-start) / batchSize)
             artQ = artIRI.substring(31)
             printlnOutput += "${artQ}\t${artTitle}\n"
             artTitle = artTitle.replaceAll(",", ";")
-            fileOutput += "${artQ},${conceptQ},Q69652283,\"\"\"$concept\"\"\",+${date}T00:00:00Z/11,${artTitle}\n"
+            fileOutput += "${artQ},${conceptQ},Q69652283,\"\"\"$originalConcept\"\"\",+${date}T00:00:00Z/11,${artTitle}\n"
           }
         }
         print(printlnOutput)
