@@ -1,5 +1,5 @@
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.1.2')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.0')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

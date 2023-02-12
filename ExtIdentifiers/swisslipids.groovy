@@ -11,8 +11,8 @@
 //
 //   Use, see: https://github.com/elixir-europe/biohackathon-projects-2021/blob/main/projects/6/SwissLipid-in-Wikidata.md
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.0.45')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.0.45')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.0')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
