@@ -134,7 +134,7 @@ doisToProcess.each { doiToProcess ->
       citedQID = map.get(doiToProcess)
       println "# citing articles for ${doiToProcess}"
       map.each { citingDOI, qid ->
-        if (citingDOI != doiToProcess && citedQID != null) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+        if (citingDOI != doiToProcess && citedQID != null && qid != null) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
       }
 
       if (options.report) {
