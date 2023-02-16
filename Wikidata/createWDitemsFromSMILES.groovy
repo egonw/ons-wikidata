@@ -520,7 +520,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       """
     } else statement = ""
 
-    if (compoundClassQ != null) statement += "$item\tP31\t$compoundClassQ$paperProv\n"
+    if (compoundClassQ != null) statement += "$item\t$instanceOfProp\t$compoundClassQ$paperProv\n"
    
     statement += """
       $typeInfo
