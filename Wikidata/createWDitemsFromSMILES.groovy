@@ -67,6 +67,7 @@ propertyMappings.put("Q113993940", "Q113993940") // inferred from InChIKey
 def cli = new CliBuilder(usage: 'createWDitemsFromSMILES.groovy')
 cli.a(longOpt: 'exactMatch', args:1, argName:'exactMatch', 'Property ID (Px) in the Wikibase to match against Wikidata (only when -w is given)')
 cli.c(longOpt: 'compound-class', args:1, argName:'comp', 'QID of the class of which the compound is an instance')
+cli.d(longOpt: 'wikidata-property', args:1, argName:'wikidataProperty', 'Wikibase property for the Wikidata QID')
 cli.e(longOpt: 'existing-only', 'Only output statements for existing chemicals')
 cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file containing the SMILES and optionally identifiers and names')
 cli.h(longOpt: 'help', 'print this message')
@@ -164,6 +165,7 @@ if (options.identifier) {
     case "pubchem": idProperty = propertyMappings.get("P662"); break
     case "pdb": idProperty = propertyMappings.get("P3636"); break
     case "nmr": idProperty = propertyMappings.get("P9405"); break // nmrshiftdb
+    case "wikidata": idProperty = options.d; break
     default: println "Unknown identifier database: ${options.identifier}"; System.exit(-1)
   }
   if (idProperty != null) println "ID found: ${idProperty}"
