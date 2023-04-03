@@ -247,6 +247,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   }
   compoundQ = null
   
+  if (smiles.isEmpty()) {
+    println "Empty SMILES. Skipping this line"
+    return
+  }
+
   mol = cdk.fromSMILES(smiles)
   println "Parsed $smiles into $mol"
 
