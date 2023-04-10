@@ -22,10 +22,11 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.0')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.1')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.1')
 
 import groovy.cli.commons.CliBuilder
+import java.util.stream.Collectors
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
@@ -104,7 +105,7 @@ doisToProcess.each { doiToProcess ->
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-  citingDOIs = new java.util.HashSet()
+  citingDOIs = new ArrayList()
   if (!options.o) {
     cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${cociURL} ..."
@@ -113,7 +114,16 @@ doisToProcess.each { doiToProcess ->
     println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
 
     // citing papers
-    if (citingDOIs.size() <= 10000) {
+    if (citingDOIs.size() <= 5000) {
+      // okay, that should work
+    } else {
+      println "# Too many citing articles. Taking 5000 random"
+      Collections.shuffle(citingDOIs);
+      citingDOIs = citingDOIs.stream().limit(5000).collect(Collectors.toList())
+      println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
+    }
+
+    {
       // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
       values = "\"${doiToProcess}\" \n" // we also need a QID for the cited article
       citingDOIs.each { doi ->
@@ -151,8 +161,6 @@ doisToProcess.each { doiToProcess ->
         println "# DOIs citing ${doiToProcess} that are not in Wikidata: ${citingDOIs.size()}"
         missingDOIs.addAll(citingDOIs)
       }
-    } else {
-      println "# Too many citing articles. Skipping"
     }
   }
 
