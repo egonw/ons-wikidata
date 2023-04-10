@@ -22,8 +22,8 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.1')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.1')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.2')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
@@ -105,6 +105,62 @@ doisToProcess.each { doiToProcess ->
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
+  citedDOIs = new java.util.HashSet()
+  if (!options.i) {
+    coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doiToProcess}")
+    println "# Fetching ${doiToProcess} from ${coci2URL} ..."
+    data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
+    data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
+    println("# Found cited DOIs for ${doiToProcess}: ${citedDOIs.size()}")
+
+    // cited papers
+    if (citedDOIs.size() <= 10000) {
+      values = "\"${doiToProcess}\" \n" // we also need a QID for the citing article
+      citedDOIs.each { doi ->
+        values += "\"${doi.toUpperCase()}\" \n"
+      }
+
+      // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
+      sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
+      if (bioclipse.isOnline()) {
+        rawResults = bioclipse.sparqlRemote(
+          "https://query.wikidata.org/sparql", sparql
+        )
+        results = rdf.processSPARQLXML(rawResults, sparql)
+      }
+
+      // make a map
+      map = new HashMap<String,String>()
+      for (i=1;i<=results.rowCount;i++) {
+        rowVals = results.getRow(i)
+        map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
+      }
+
+      citingQID = map.get(doiToProcess)
+      println "# cited articles for ${doiToProcess}"
+      map.each { citedDOI, qid ->
+        if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
+      }
+
+      if (options.report) {
+        // report all the DOIs that are not in Wikidata
+        sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
+        if (bioclipse.isOnline()) {
+          rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+          results = rdf.processSPARQLXML(rawResults, sparql)
+        }
+        for (i=1;i<=results.rowCount;i++) {
+          rowVals = results.getRow(i)
+          citedDOIs.remove(rowVals[1])
+        }
+        println "# DOIs citing ${doiToProcess} that are not in Wikidata: ${citedDOIs.size()}"
+        missingDOIs.addAll(citedDOIs)
+      }
+    } else {
+      println "# Too many cited articles. Skipping"
+    }
+  }
+  
   citingDOIs = new ArrayList()
   if (!options.o) {
     cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doiToProcess}")
@@ -161,62 +217,6 @@ doisToProcess.each { doiToProcess ->
         println "# DOIs citing ${doiToProcess} that are not in Wikidata: ${citingDOIs.size()}"
         missingDOIs.addAll(citingDOIs)
       }
-    }
-  }
-
-  citedDOIs = new java.util.HashSet()
-  if (!options.i) {
-    coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doiToProcess}")
-    println "# Fetching ${doiToProcess} from ${coci2URL} ..."
-    data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
-    data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
-    println("# Found cited DOIs for ${doiToProcess}: ${citedDOIs.size()}")
-
-    // cited papers
-    if (citedDOIs.size() <= 10000) {
-      values = "\"${doiToProcess}\" \n" // we also need a QID for the citing article
-      citedDOIs.each { doi ->
-        values += "\"${doi.toUpperCase()}\" \n"
-      }
-
-      // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
-      sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
-      if (bioclipse.isOnline()) {
-        rawResults = bioclipse.sparqlRemote(
-          "https://query.wikidata.org/sparql", sparql
-        )
-        results = rdf.processSPARQLXML(rawResults, sparql)
-      }
-
-      // make a map
-      map = new HashMap<String,String>()
-      for (i=1;i<=results.rowCount;i++) {
-        rowVals = results.getRow(i)
-        map.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
-      }
-
-      citingQID = map.get(doiToProcess)
-      println "# cited articles for ${doiToProcess}"
-      map.each { citedDOI, qid ->
-        if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
-      }
-
-      if (options.report) {
-        // report all the DOIs that are not in Wikidata
-        sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
-        if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
-          results = rdf.processSPARQLXML(rawResults, sparql)
-        }
-        for (i=1;i<=results.rowCount;i++) {
-          rowVals = results.getRow(i)
-          citedDOIs.remove(rowVals[1])
-        }
-        println "# DOIs citing ${doiToProcess} that are not in Wikidata: ${citedDOIs.size()}"
-        missingDOIs.addAll(citedDOIs)
-      }
-    } else {
-      println "# Too many cited articles. Skipping"
     }
   }
 
