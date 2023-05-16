@@ -146,8 +146,10 @@ SELECT ?wdprop ?prop ?propLabel WHERE {
   }
 } else if (options.w) {
   println "ERROR: if -w is given, -a must be given too"
+  System.exit(-1)
 } else if (options.a) {
   println "ERROR: if -a is given, -w must be given too"
+  System.exit(-1)
 }
 
 idProperty = null
