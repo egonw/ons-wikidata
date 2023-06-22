@@ -167,7 +167,7 @@ if (options.identifier) {
     case "pubchem": idProperty = propertyMappings.get("P662"); break
     case "pdb": idProperty = propertyMappings.get("P3636"); break
     case "nmr": idProperty = propertyMappings.get("P9405"); break // nmrshiftdb
-    case "wikidata": idProperty = options.d; break
+    case "wikidata": idProperty = options.d ? options.d : null ; break
     default: println "Unknown identifier database: ${options.identifier}"; System.exit(-1)
   }
   if (idProperty != null) println "ID found: ${idProperty}"
