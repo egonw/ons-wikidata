@@ -374,8 +374,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
   undefinedCenters = cdk.getAtomsWithUndefinedStereo(mol)
   fullChiralityIsDefined = undefinedCenters.size() == 0
-  ignoreBecauseStereoMissing =  options.s && !fullChiralityIsDefined
-  
+  ignoreBecauseStereoMissing =  options.s ? !fullChiralityIsDefined : false
+
   totalFormalCharge = cdk.totalFormalCharge(mol)
   isCharged = (totalFormalCharge != 0)
   ignoreBecauseCharged = options.q && isCharged
