@@ -324,7 +324,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   pubchemLine = ""
   if (bioclipse.isOnline()) {
     try {
-      pcResults = pubchem.search(key)
+      println "Searching PubChem for $key ..."
+      pcResults = pubchem.search("\"$key\"")
       sleep(250) // keep PubChem happy
       if (pcResults.size() == 1) {
         cid = pcResults[0]
