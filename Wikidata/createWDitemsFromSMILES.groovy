@@ -15,11 +15,11 @@
 //     http://quickstatements.toolforge.org/
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.3.2')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.2')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.2')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.3.2')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.3.2')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.3.3')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.3')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.3')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.3.3')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.3.3')
 
 import groovy.cli.commons.CliBuilder
 
