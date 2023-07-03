@@ -536,7 +536,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       $typeInfo
       $item\t$instanceOfProp\t$typeOfAChemicalEntityItem
       $item\tDen\t\"chemical compound\"$paperProv
-      $item\t$smilesProp\t\"$smiles\"\t$basedOnHeuristicProp
+      $item\t$smilesProp\t\"$smiles\"
       $item\t$chemFormulaProp\t\"$formula\"\t$basedOnHeuristicProp\t$smilesInferredItem
       $item\t$massProp\t${mass}$daltonUnit\t$basedOnHeuristicProp\t$smilesInferredItem
     """
