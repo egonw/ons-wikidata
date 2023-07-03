@@ -61,6 +61,7 @@ propertyMappings.put("P2067", "P2067") // mass
 propertyMappings.put("Q483261",    "Q483261")    // dalton
 propertyMappings.put("Q11173",     "Q11173")     // chemical compound
 propertyMappings.put("Q59199015",  "Q59199015")  // group of stereoisomers
+propertyMappings.put("Q113145171", "Q113145171") // type of a chemical entity
 propertyMappings.put("Q113907573", "Q113907573") // inferred from SMILES
 propertyMappings.put("Q113993940", "Q113993940") // inferred from InChIKey
 
@@ -221,6 +222,7 @@ basedOnHeuristicProp  = propertyMappings.get("P887").replace("P", "S")
 isoSmilesProp         = propertyMappings.get("P2017")
 massProp              = propertyMappings.get("P2067")
 chemicalCompoundItem  = propertyMappings.get("Q11173")
+typeOfAChemicalEntityItem = propertyMappings.get("Q113145171")
 daltonUnit            = options.w ? "" : propertyMappings.get("Q483261").replace("Q", "U")
 stereoisomerGroupItem = propertyMappings.get("Q59199015")
 inchikeyInferredItem  = propertyMappings.get("Q113993940")
@@ -532,6 +534,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
    
     statement += """
       $typeInfo
+      $item\t$instanceOfProp\t$typeOfAChemicalEntityItem
       $item\tDen\t\"chemical compound\"$paperProv
       $item\t$smilesProp\t\"$smiles\"\t$basedOnHeuristicProp
       $item\t$chemFormulaProp\t\"$formula\"\t$basedOnHeuristicProp\t$smilesInferredItem
