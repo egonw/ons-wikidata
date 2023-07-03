@@ -546,7 +546,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
     if (inchiShort.length() <= 400) statement += "  $item\t$inchiProp\t\"InChI=$inchiShort\"\t$basedOnHeuristicProp\t$smilesInferredItem"
     statement += """
-      $item\t$inchikeyProp\t\"$key\"\t$smilesInferredItem
+      $item\t$inchikeyProp\t\"$key\"\t$basedOnHeuristicProp\t$smilesInferredItem
       $pubchemLine
     """
 
