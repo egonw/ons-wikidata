@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2022  Egon Willighagen
+// Copyright (C) 2018-2023  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -11,8 +11,8 @@
 //
 //   Use, see: https://github.com/elixir-europe/biohackathon-projects-2021/blob/main/projects/6/SwissLipid-in-Wikidata.md
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.0')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.3')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.3')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -100,7 +100,7 @@ new File(bioclipse.fullPath(input)).eachLine{ line ->
     wdid = map.get(inchikey)
     if (!ignores.contains(wdid)) {
       mappingContent += "${wdid}\t${property}\t\"${extid}\"" +
-        ((source == null) ? "" : "\tS248\t${source}") +
+        ((source == null) ? "" : "\tS248\t${source}\tS887\tQ113993940") +
         ((referenceURL == null) ? "" : "\tS854\t\"${referenceURL}\"") +
         "\tS813\t+${date}T00:00:00Z/11\n";
     }
