@@ -37,6 +37,7 @@ def cli = new CliBuilder(usage: 'findConcepts.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.s(longOpt: 'search-string', args:1, argName:'query', 'Search this query in the article titles')
 cli.q(longOpt: 'qid', args:1, argName:'qid', 'QID of the item to set as main item')
+cli.i(longOpt: 'i', args:1, argName:'include', 'Comma-separated list of QIDs that must also be main subject')
 cli.x(longOpt: 'x', args:1, argName:'exclude', 'Comma-separated list of QIDs that must not be main subject (either)')
 def options = cli.parse(args)
 
@@ -47,10 +48,11 @@ if (options.help) {
 
 concept = null
 conceptQ = null
-excludeTopics = new HashSet<String>()
 if (options.s) concept = options.s
 if (options.q) conceptQ = options.q
 startBatch = 0
+
+excludeTopics = new HashSet<String>()
 if (options.x) {
   if (options.x.contains(",")) {
     for (topic in options.x.split(',')) {
@@ -58,6 +60,17 @@ if (options.x) {
     }
   } else {
     excludeTopics.add(options.x)
+  }
+}
+
+includeTopics = new HashSet<String>()
+if (options.i) {
+  if (options.i.contains(",")) {
+    for (topic in options.i.split(',')) {
+      includeTopics.add(topic)
+    }
+  } else {
+    includeTopics.add(options.i)
   }
 }
 
@@ -90,6 +103,10 @@ excludeSPARQL = ""
 if (excludeTopics.size() > 0) {
   for (qid in excludeTopics) excludeSPARQL += " -haswbstatement:P921=${qid}"
 }
+includeSPARQL = ""
+if (includeTopics.size() > 0) {
+  for (qid in includeTopics) includeSPARQL += " haswbstatement:P921=${qid}"
+}
 
 sparql = """
   SELECT DISTINCT ?art ?artTitle
@@ -97,7 +114,7 @@ sparql = """
     SERVICE wikibase:mwapi {
       bd:serviceParam wikibase:endpoint "www.wikidata.org";
         wikibase:api "Search";
-        mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ${excludeSPARQL}";
+        mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ${excludeSPARQL}${includeSPARQL}";
         mwapi:srlimit "max".
       ?art wikibase:apiOutputItem mwapi:title.
     }
