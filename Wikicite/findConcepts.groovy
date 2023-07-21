@@ -88,19 +88,16 @@ ui.append(qsFile, "qid,P921,S887,s1932,s813,#\n")
 
 excludeSPARQL = ""
 if (excludeTopics.size() > 0) {
-  excludeQIDs = ""
-  for (qid in excludeTopics) excludeQIDs += "wd:${qid} "
-  excludeSPARQL = "VALUES ?excludeQID { ${excludeQIDs}} MINUS { ?art wdt:P921 ?excludeQID }"
+  for (qid in excludeTopics) excludeSPARQL += " -haswbstatement:P921=${qid}"
 }
 
 sparql = """
   SELECT DISTINCT ?art ?artTitle
   WHERE {
-    ${excludeSPARQL}
     SERVICE wikibase:mwapi {
       bd:serviceParam wikibase:endpoint "www.wikidata.org";
         wikibase:api "Search";
-        mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ";
+        mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ${excludeSPARQL}";
         mwapi:srlimit "max".
       ?art wikibase:apiOutputItem mwapi:title.
     }
