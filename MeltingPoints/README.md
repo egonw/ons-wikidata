@@ -7,7 +7,7 @@ First, download the Excel spreadsheet and safe it in this folder, with something
 like:
 
 ```shell
-wget -o BradleyMeltingPointDataset.xlsx https://ndownloader.figshare.com/files/1503990
+wget -O BradleyMeltingPointDataset.xlsx https://ndownloader.figshare.com/files/1503990
 ```
 
 QuickStatements can then be generated for compounds without missing boiling
