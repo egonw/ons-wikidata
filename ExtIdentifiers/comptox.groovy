@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2019  Egon Willighagen
+// Copyright (C) 2018-2023  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -9,8 +9,8 @@
 //
 //     https://tools.wmflabs.org/quickstatements/
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.1.0')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.1.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.2')
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
