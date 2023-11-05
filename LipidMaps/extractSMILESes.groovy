@@ -2,7 +2,7 @@
 //
 // groovy extractSMILESes.groovy | tee lm.smi
 
-@Grab(group='org.openscience.cdk', module='cdk-bundle', version='2.9-SNAPSHOT')
+@Grab(group='org.openscience.cdk', module='cdk-bundle', version='2.10-SNAPSHOT')
 
 import org.openscience.cdk.interfaces.*;
 import org.openscience.cdk.io.*;
