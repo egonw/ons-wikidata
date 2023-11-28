@@ -107,9 +107,9 @@ doisToProcess.each { doiToProcess ->
 
   citedDOIs = new java.util.HashSet()
   if (!options.i) {
-    coci2URL = new URL("https://opencitations.net/index/coci/api/v1/references/${doiToProcess}")
-    println "# Fetching ${doiToProcess} from ${coci2URL} ..."
-    data2 = new groovy.json.JsonSlurper().parseText(coci2URL.text)
+    oci2URL = new URL("https://opencitations.net/index/api/v1/references/${doiToProcess}")
+    println "# Fetching ${doiToProcess} from ${oci2URL} ..."
+    data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
     data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
     println("# Found cited DOIs for ${doiToProcess}: ${citedDOIs.size()}")
 
@@ -139,7 +139,7 @@ doisToProcess.each { doiToProcess ->
       citingQID = map.get(doiToProcess)
       println "# cited articles for ${doiToProcess}"
       map.each { citedDOI, qid ->
-        if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${coci2URL}\"\"\",+${date}T00:00:00Z/11"
+        if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${oci2URL}\"\"\",+${date}T00:00:00Z/11"
       }
 
       if (options.report) {
@@ -163,9 +163,9 @@ doisToProcess.each { doiToProcess ->
   
   citingDOIs = new ArrayList()
   if (!options.o) {
-    cociURL = new URL("https://opencitations.net/index/coci/api/v1/citations/${doiToProcess}")
-    println "# Fetching ${doiToProcess} from ${cociURL} ..."
-    data = new groovy.json.JsonSlurper().parseText(cociURL.text)
+    ociURL = new URL("https://opencitations.net/index/api/v1/citations/${doiToProcess}")
+    println "# Fetching ${doiToProcess} from ${ociURL} ..."
+    data = new groovy.json.JsonSlurper().parseText(ociURL.text)
     data.each { citation -> citingDOIs.add(citation.citing.toUpperCase()) }
     println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
 
@@ -200,7 +200,7 @@ doisToProcess.each { doiToProcess ->
       citedQID = map.get(doiToProcess)
       println "# citing articles for ${doiToProcess}"
       map.each { citingDOI, qid ->
-        if (citingDOI != doiToProcess && citedQID != null && qid != null) println "${qid},${citedQID},Q107507940,\"\"\"${cociURL}\"\"\",+${date}T00:00:00Z/11"
+        if (citingDOI != doiToProcess && citedQID != null && qid != null) println "${qid},${citedQID},Q107507940,\"\"\"${ociURL}\"\"\",+${date}T00:00:00Z/11"
       }
 
       if (options.report) {
