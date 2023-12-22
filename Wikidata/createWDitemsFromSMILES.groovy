@@ -15,11 +15,11 @@
 //     http://quickstatements.toolforge.org/
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.3.6')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.6')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.6')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.3.6')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.3.6')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='0.4.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.4.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.4.0')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='0.4.0')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='0.4.0')
 
 import groovy.cli.commons.CliBuilder
 
@@ -518,7 +518,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
-      typeInfo = "$item\t$instanceOfProp\t$chemicalCompoundItem" // chemical compound
+      typeInfo = "$item\t$instanceOfProp\t$typeOfAChemicalEntityItem" // type of chemical entity
     } else {
       println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
       typeInfo = "$item\t$instanceOfProp\t$stereoisomerGroupItem" // group of stereoisomers
@@ -534,7 +534,6 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
    
     statement += """
       $typeInfo
-      $item\t$instanceOfProp\t$typeOfAChemicalEntityItem
       $item\tDen\t\"chemical compound\"$paperProv
       $item\t$smilesProp\t\"$smiles\"
       $item\t$chemFormulaProp\t\"$formula\"\t$basedOnHeuristicProp\t$smilesInferredItem
