@@ -2,6 +2,15 @@
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
 
+// Using the output of the CrossRef API, see https://www.crossref.org/blog/news-crossref-and-retraction-watch/
+//
+// the API call https://api.labs.crossref.org/data/retractionwatch?ginny@crossref.org gives files like this:
+//
+// Record ID,Title,Subject,Institution,Journal,Publisher,Country,Author,URLS,ArticleType,RetractionDate,RetractionDOI,RetractionPubMedID,OriginalPaperDate,OriginalPaperDOI,OriginalPaperPubMedID,RetractionNature,Reason,Paywalled,Notes
+// 50438,Construction of Mental Health Education Model Based on Computer Multimedia Group Psychological Measurement,(B/T) Technology;(SOC) Education;(SOC) Psychology;,"Education Department, Taiyuan Normal University, Taiyuan, Shanxi, China;",Advances in Multimedia,Hindawi,China,Haiyan Zhang,https://retractionwatch.com/2022/09/28/exclusive-hindawi-and-wiley-to-retract-over-500-papers-linked-to-peer-review-rings/;https://retractionwatch.com/2023/04/05/wiley-and-hindawi-to-retract-1200-more-papers-for-compromised-peer-review/,Research Article;,8/16/2023 0:00,10.1155/2023/9804945,0,9/24/2021 0:00,10.1155/2021/6907871,0,Retraction,+Concerns/Issues About Data;+Concerns/Issues About Results;+Concerns/Issues about Referencing/Attributions;+Concerns/Issues with Peer Review;+Investigation by Journal/Publisher;+Investigation by Third Party;+Randomly Generated Content;+Unreliable Results;,No,See also: https://pubpeer.com/publications/7309DC051DD46825091B5F5FC6B0E9
+// ...
+
+
 // Bacting config
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.0-SNAPSHOT')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.0-SNAPSHOT')
