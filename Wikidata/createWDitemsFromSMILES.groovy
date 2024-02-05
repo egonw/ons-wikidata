@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023  Egon Willighagen
+// Copyright (C) 2016-2024  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -106,6 +106,8 @@ if (options.c) {
 sparqlEP = "https://query.wikidata.org/sparql"
 serverIRIprotocol = "http"
 wikibaseServer = "www.wikidata.org"
+wikibaseName = "Wikidata"
+if (options.w) wikibaseName = options.w
 
 // look up the mappings in the Wikibase
 if (options.w && options.a) {
@@ -184,7 +186,7 @@ if (options.t) {
   taxonQID = options.t
 }
 
-// if all SMILES come from the same paper, enter the Wikidata item code
+// if all SMILES come from the same paper, enter the Wikibase item code
 // on the next line, e.g. paperQ = "Q22570477". It will be used as reference
 // to some of the information 
 paperQ = null
@@ -319,7 +321,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
   formula = upgradeChemFormula(cdk.molecularFormula(mol))
   mass = cdk.calculateMass(mol)
   
-  // Create the Wikidata QuickStatement, see https://tools.wmflabs.org/wikidata-todo/quick_statements.php
+  // Create the Wikibase QuickStatement, see https://tools.wmflabs.org/wikidata-todo/quick_statements.php
   
   item = "LAST" // set to Qxxxx if you need to append info, e.g. item = "Q22579236"
   
@@ -388,7 +390,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
 
   if (!missing && options.'non-existing-only') {
     println "===================="
-    println (new String((char)27) + "[31m" + "$formula is already in Wikidata as " + existingQcode + new String((char)27) + "[37m")
+    println (new String((char)27) + "[31m" + "$formula is already in ${wikibaseName} as " + existingQcode + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
     } else {
@@ -396,11 +398,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     }
   } else if (!missing && ignoreBecauseStereoMissing) {
     println "===================="
-    println (new String((char)27) + "[31m" + "$formula is already in Wikidata as " + existingQcode + new String((char)27) + "[37m")
+    println (new String((char)27) + "[31m" + "$formula is already in ${wikibaseName} as " + existingQcode + new String((char)27) + "[37m")
     println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
   } else if (!missing) {
     println "===================="
-    println (new String((char)27) + "[31m" + "$formula is already in Wikidata as " + existingQcode + new String((char)27) + "[37m")
+    println (new String((char)27) + "[31m" + "$formula is already in ${wikibaseName} as " + existingQcode + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
     } else {
@@ -500,22 +502,22 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     println "===================="
   } else if (ignoreBecauseStereoMissing) {
     println "===================="
-    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println (new String((char)27) + "[32m" + "$formula is not yet in ${wikibaseName}" + new String((char)27) + "[37m")
     println "Compound has missing stereo on # of centers: " + undefinedCenters.size()
     println "===================="
   } else if (ignoreBecauseCharged) {
     println "===================="
-    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println (new String((char)27) + "[32m" + "$formula is not yet in ${wikibaseName}" + new String((char)27) + "[37m")
     println "Compound is charged. skipping"
     println "===================="
   } else if (ignoreBecauseDisconnected) {
     println "===================="
-    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println (new String((char)27) + "[32m" + "$formula is not yet in ${wikibaseName}" + new String((char)27) + "[37m")
     println "Compound is disconnected. skipping"
     println "===================="
   } else if (!ignoreBecauseStereoMissing && !ignoreBecauseCharged && !ignoreBecauseDisconnected && !options.e) {
     println "===================="
-    println (new String((char)27) + "[32m" + "$formula is not yet in Wikidata" + new String((char)27) + "[37m")
+    println (new String((char)27) + "[32m" + "$formula is not yet in ${wikibaseName}" + new String((char)27) + "[37m")
     if (fullChiralityIsDefined) {
       println "Full stereochemistry is defined"
       typeInfo = "$item\t$instanceOfProp\t$typeOfAChemicalEntityItem" // type of chemical entity
