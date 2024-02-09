@@ -12,9 +12,9 @@
 
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.0-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.0-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='0.5.0-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.0')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='0.5.0')
 @Grab(group='org.apache.commons', module='commons-csv', version='1.10.0')
 
 import org.apache.commons.csv.CSVFormat;
