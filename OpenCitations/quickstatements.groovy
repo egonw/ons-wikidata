@@ -41,8 +41,8 @@ cli.h(longOpt: 'help', 'print this message')
 cli.t(longOpt: 'token', args:1, argName:'token', 'OpenCitations Access Token')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
 cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing article')
-cli.i(longOpt: 'incoming-only', 'Only DOIs of the citing articles')
-cli.o(longOpt: 'outgoing-only', 'Only DOIs of the cited articles')
+cli.i(longOpt: 'incoming-only', 'Return only citations to the articles with the DOIs')
+cli.o(longOpt: 'outgoing-only', 'Return only references in the articles with the DOIs')
 cli.r(longOpt: 'report', args:1, argName:'report', 'Report citing or cited DOIs (excluding preprints) not found in Wikidata yet in the given file')
 cli.R(longOpt: 'report-preprints-too', args:1, argName:'report', 'Report citing or cited DOIs not found in Wikidata yet in the given file')
 def options = cli.parse(args)
@@ -94,6 +94,10 @@ if (options.list) {
 
 println "qid,P2860,S248,s854,s813"
 
+if (options.i && options.o) {
+  println("Error: The options -i and -o cannot be combined.")
+  System.exit(-1)
+}
 if (options.o) println "# Only reporting cited articles"
 if (options.i) println "# Only reporting citing articles"
 
