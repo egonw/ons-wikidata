@@ -12,10 +12,9 @@
 
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.0')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.0')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='0.5.0')
-@Grab(group='org.apache.commons', module='commons-csv', version='1.10.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.2')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='0.5.2')
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -92,7 +91,9 @@ retractedArticles.each { doi, retractedArticle ->
     }
   }
   // output the QS
-  if (retractedArticle.qid != null && !knownRetracted.contains(retractedArticle.qid)) {
+  if (retractedArticle.qid != null &&                    // filter out false hits
+      !knownRetracted.contains(retractedArticle.qid) &&  // the paper is not already marked as retracted
+      !knownNotices.contains(retractedArticle.qid)) {    // sometimes the metadata is funny, so make sure it's not a retraction notice
     println "\t${retractedArticle.qid}\tP31\tQ45182324${source}"
     if (retractedArticle.noticeQid != null)
       println "\t${retractedArticle.qid}\tP5824\t${retractedArticle.noticeQid}${source}"
