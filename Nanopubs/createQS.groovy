@@ -4,6 +4,8 @@
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.2')
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.2')
 
+import java.util.*
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
@@ -44,14 +46,44 @@ if (bioclipse.isOnline()) {
     "https://query.np.trustyuri.net/repo/type/2c1cce3f3152738c1009d59251409392aaaa3b0324bcb5fdfb4b7b944b8f0c18?query=" + sparql.encodeURL(),
     "application/sparql-results+xml"
   )
-  results = rdf.processSPARQLXML(rawResults.getBytes(), sparql)
+  npResults = rdf.processSPARQLXML(rawResults.getBytes(), sparql)
 }
 
-for (row in 1..results.getRowCount()) {
-  npid = results.get(row, "np")
-  citingDOI = "10." + results.get(row, "subj").split("10\\.")[1]
-  intent = results.get(row, "citationrel").replace("http://purl.org/spar/cito/", "")
-  citedDOI = "10." + results.get(row, "obj").split("10\\.")[1]
-  date = results.get(row, "date")
-  println "${citingDOI} ${intent} ${citedDOI}"
+// collect all DOIs
+allDOIs = new HashSet<String>()
+for (row in 1..npResults.getRowCount()) {
+  allDOIs.add("10." + npResults.get(row, "obj").split("10\\.")[1])
+  allDOIs.add("10." + npResults.get(row, "subj").split("10\\.")[1])
 }
+// get all Wikidata <> DOI pairs
+values = "" // we also need a QID for the citing article
+allDOIs.each { doi ->
+  values += "\"${doi.toUpperCase()}\" "
+}
+sparql = "SELECT DISTINCT ?work ?doi WHERE { VALUES ?doi { ${values} } ?work wdt:P356 ?doi }"
+if (bioclipse.isOnline()) {
+  rawResults = bioclipse.sparqlRemote(
+    "https://query.wikidata.org/sparql", sparql
+  )
+  results = rdf.processSPARQLXML(rawResults, sparql)
+}
+doiToWikidata = new HashMap<String,String>()
+for (i=1;i<=results.rowCount;i++) {
+  rowVals = results.getRow(i)
+  doiToWikidata.put(rowVals[1], rowVals[0].replace("http://www.wikidata.org/entity/",""))
+}
+
+// DOIs that are not in Wikidata are not in the doiToWikidata map
+
+for (row in 1..npResults.getRowCount()) {
+  npid = npResults.get(row, "np")
+  citingDOI = "10." + npResults.get(row, "subj").split("10\\.")[1]
+  intent = npResults.get(row, "citationrel").replace("http://purl.org/spar/cito/", "")
+  citedDOI = "10." + npResults.get(row, "obj").split("10\\.")[1]
+  date = npResults.get(row, "date")
+  println "${citingDOI} (${doiToWikidata.get(citingDOI.toUpperCase())}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI.toUpperCase())})"
+  allDOIs.add(citingDOI)
+  
+}
+
+
