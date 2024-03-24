@@ -81,7 +81,7 @@ for (row in 1..npResults.getRowCount()) {
   intent = npResults.get(row, "citationrel").replace("http://purl.org/spar/cito/", "")
   citedDOI = "10." + npResults.get(row, "obj").split("10\\.")[1].toUpperCase()
   date = npResults.get(row, "date")
-  println "# ${citingDOI} (${doiToWikidata.get(citingDOI)}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI)})"
+  println "# == NanoPubicliation: ${citingDOI} (${doiToWikidata.get(citingDOI)}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI)})"
   sparql = """
 SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
   ?citingArticle p:P2860 ?citationStatement ; wdt:P356 "${citingDOI}" .
@@ -101,17 +101,42 @@ SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
     )
     results = rdf.processSPARQLXML(rawResults, sparql)
   }
+  toAdd = false
+  comment = ""
   if (results.rowCount > 1) {
-    printn "# multiple results found. not sure what to do"
+    println "# multiple results found. not sure what to do"
+  } else if (results.rowCount == 0) {
+    println "# no citation found in Wikidata"
+    toAdd = true
+    comment = "missing citation"
   } else {
     println "# Wikidata results: ${results.getRow(1)}"
     wdIntent = results.get(1, "intention")
     if (wdIntent == null) {
       println "# no CiTO intent found in Wikidata"
+      toAdd = true
+      comment = "new citation intent"
     } else if (!intent.equals(wdIntent)) {
       println "# different CiTO intent found in Wikidata"
+      toAdd = true
+      comment = "new citation intent"
     } else {
       println "# matching CiTO intent found in Wikidata"
+      wdNP = results.get(1, "np")
+      if (wdNP == null) {
+        println "#   but no NP reference"
+        toAdd = true
+        comment = "intent found, but adding new reference"
+      } else if (!intent.equals(wdIntent)) {
+        println "#   NP reference found, but no match"
+        toAdd = true
+        comment "intent found, and adding a new NP reference"
+      } else {
+        println "#   NP reference match found"
+      }
     }
+  }
+  if (toAdd) {
+    println "# I should add new content: ${comment}"
   }
 }
