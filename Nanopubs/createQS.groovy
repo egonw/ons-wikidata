@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2023  Egon Willighagen
+// Copyright (C) 2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
 @Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.2')
