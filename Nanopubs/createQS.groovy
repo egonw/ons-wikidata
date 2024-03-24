@@ -77,13 +77,41 @@ for (i=1;i<=results.rowCount;i++) {
 
 for (row in 1..npResults.getRowCount()) {
   npid = npResults.get(row, "np")
-  citingDOI = "10." + npResults.get(row, "subj").split("10\\.")[1]
+  citingDOI = "10." + npResults.get(row, "subj").split("10\\.")[1].toUpperCase()
   intent = npResults.get(row, "citationrel").replace("http://purl.org/spar/cito/", "")
-  citedDOI = "10." + npResults.get(row, "obj").split("10\\.")[1]
+  citedDOI = "10." + npResults.get(row, "obj").split("10\\.")[1].toUpperCase()
   date = npResults.get(row, "date")
-  println "${citingDOI} (${doiToWikidata.get(citingDOI.toUpperCase())}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI.toUpperCase())})"
-  allDOIs.add(citingDOI)
-  
+  println "# ${citingDOI} (${doiToWikidata.get(citingDOI)}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI)})"
+  sparql = """
+SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
+  ?citingArticle p:P2860 ?citationStatement ; wdt:P356 "${citingDOI}" .
+  ?citationStatement ps:P2860 ?citedArticle .
+  ?citedArticle wdt:P356 "${citedDOI}" .
+  OPTIONAL {
+    ?citationStatement pq:P3712 ?INTENTION .
+    ?INTENTION wdt:P31 wd:Q96471816 ; wdt:P2888 ?intentionIRI .
+    OPTIONAL { ?citationStatement prov:wasDerivedFrom / pr:P12545 ?np }
+    BIND (substr(str(?intentionIRI),27) AS ?intention)
+  }
 }
-
-
+"""
+  if (bioclipse.isOnline()) {
+    rawResults = bioclipse.sparqlRemote(
+      "https://query.wikidata.org/sparql", sparql
+    )
+    results = rdf.processSPARQLXML(rawResults, sparql)
+  }
+  if (results.rowCount > 1) {
+    printn "# multiple results found. not sure what to do"
+  } else {
+    println "# Wikidata results: ${results.getRow(1)}"
+    wdIntent = results.get(1, "intention")
+    if (wdIntent == null) {
+      println "# no CiTO intent found in Wikidata"
+    } else if (!intent.equals(wdIntent)) {
+      println "# different CiTO intent found in Wikidata"
+    } else {
+      println "# matching CiTO intent found in Wikidata"
+    }
+  }
+}
