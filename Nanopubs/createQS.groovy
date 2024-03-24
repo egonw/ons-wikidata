@@ -5,6 +5,7 @@
 @Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.2')
 
 import java.util.*
+import java.text.SimpleDateFormat;
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
@@ -14,6 +15,10 @@ rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
 String.metaClass.encodeURL = {
    java.net.URLEncoder.encode(delegate, "UTF-8")
 }
+
+citoIntents = new HashMap<String,String>()
+citoIntents.put("extends","Q96472100")
+citoIntents.put("usesMethodIn","Q96472102")
 
 sparql = """
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -38,7 +43,8 @@ select ?np ?subj ?citationrel ?obj ?date where {
     filter(regex(str(?subj), "doi.org/10"))
     filter(regex(str(?obj), "doi.org/10"))
   }
-}
+}  ORDER BY DESC(?date)
+LIMIT 5
 """
 
 if (bioclipse.isOnline()) {
@@ -75,6 +81,9 @@ for (i=1;i<=results.rowCount;i++) {
 
 // DOIs that are not in Wikidata are not in the doiToWikidata map
 
+String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+println "qid,P2860,qal3712,S12545,s577,s813,#"
 for (row in 1..npResults.getRowCount()) {
   npid = npResults.get(row, "np")
   citingDOI = "10." + npResults.get(row, "subj").split("10\\.")[1].toUpperCase()
@@ -136,7 +145,15 @@ SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
       }
     }
   }
+  comment = comment.replaceAll(",", ";")
   if (toAdd) {
     println "# I should add new content: ${comment}"
+    intentQ = citoIntents.get(intent)
+    if (intentQ != null) {
+      // qid,P2860,qal3712,S12545,s577,s813,#
+      println "${doiToWikidata.get(citingDOI)},${doiToWikidata.get(citedDOI)},${intentQ},\"\"\"${npid}\"\"\",+${date.substring(0,10)}T00:00:00Z/11,+${today}T00:00:00Z/11,${comment}"
+    } else {
+      println "#   Would love to, but I do not know what qid '${intent}' maps too"
+    }
   }
 }
