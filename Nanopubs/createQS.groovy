@@ -19,6 +19,11 @@ String.metaClass.encodeURL = {
 citoIntents = new HashMap<String,String>()
 citoIntents.put("extends","Q96472100")
 citoIntents.put("usesMethodIn","Q96472102")
+citoIntents.put("usesDataFrom","Q101149476")
+citoIntents.put("cites","Q96471816")
+citoIntents.put("citesAsRecommendedReading","Q111736358")
+citoIntents.put("updates","Q96473628")
+citoIntents.put("citesForInformation","Q96479970")
 
 sparql = """
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -146,7 +151,7 @@ SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
     }
   }
   comment = comment.replaceAll(",", ";")
-  if (toAdd) {
+  if (toAdd && doiToWikidata.get(citingDOI) != null && doiToWikidata.get(citedDOI) != null) {
     println "# I should add new content: ${comment}"
     intentQ = citoIntents.get(intent)
     if (intentQ != null) {
