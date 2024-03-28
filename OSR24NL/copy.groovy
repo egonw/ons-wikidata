@@ -38,9 +38,13 @@ def populateMappings(Set<String> wikidataIDs, HashMap<String,String> prevMapping
 
   wdProperties = ""
   for (prop : wikidataIDs) {
-    wdProperties += "wd:$prop "
+    if (!wd2wbMappings.keySet().contains(prop)) {
+      wdProperties += "wd:$prop "
+    }
   }
-  mappingQuery = """
+  if (wdProperties.contains("wd:")) {
+    // only look up identifiers if we are still missing items
+    mappingQuery = """
 PREFIX wd:  <http://www.wikidata.org/entity/>
 PREFIX wdt: <${serverIRIprotocol}://${wikibaseServer}/prop/direct/>
 
@@ -50,19 +54,20 @@ SELECT ?wdprop ?prop ?propLabel WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 }
 """
-  rawResults = bioclipse.sparqlRemote(sparqlEP, mappingQuery)
-  results = rdf.processSPARQLXML(rawResults, mappingQuery)
+    rawResults = bioclipse.sparqlRemote(sparqlEP, mappingQuery)
+    results = rdf.processSPARQLXML(rawResults, mappingQuery)
 
-  // update the wd2wbMappings to match the Wikibase
-  for (i=1;i<=results.rowCount;i++) {
-    rowVals = results.getRow(i)
-    wdItem = rowVals[0].substring(31)
-    localItem = rowVals[1].substring(16 + wikibaseServer.length())
-    wd2wbMappings.replace(wdItem, localItem)
-  }
-  for (prop : wd2wbMappings.keySet()) {
-    if (prop == wd2wbMappings.get(prop)) {
-      println "#Warning: $prop is not set in the Wikibase"
+    // update the wd2wbMappings to match the Wikibase
+    for (i=1;i<=results.rowCount;i++) {
+      rowVals = results.getRow(i)
+      wdItem = rowVals[0].substring(31)
+      localItem = rowVals[1].substring(16 + wikibaseServer.length())
+      wd2wbMappings.put(wdItem, localItem)
+    }
+    for (prop : wd2wbMappings.keySet()) {
+      if (prop == wd2wbMappings.get(prop)) {
+        println "#Warning: $prop is not set in the Wikibase"
+      }
     }
   }
 
@@ -71,9 +76,8 @@ SELECT ?wdprop ?prop ?propLabel WHERE {
 
 propertiesOfInterest = new HashSet<String>()
 propertiesOfInterest.add("P496") // ORCID id
-propertiesOfInterest.add("P248") // ORCID id
+// propertiesOfInterest.add("P248") // stated in
 
 mappings = populateMappings(propertiesOfInterest, null)
-
-print mappings
+println mappings
 
