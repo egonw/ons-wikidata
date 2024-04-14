@@ -24,6 +24,7 @@ citoIntents.put("cites","Q96471816")
 citoIntents.put("citesAsRecommendedReading","Q111736358")
 citoIntents.put("updates","Q96473628")
 citoIntents.put("citesForInformation","Q96479970")
+citoIntents.put("disputes","Q117121923")
 
 sparql = """
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
