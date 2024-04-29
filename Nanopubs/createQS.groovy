@@ -50,7 +50,7 @@ select ?np ?subj ?citationrel ?obj ?date where {
     filter(regex(str(?obj), "doi.org/10"))
   }
 }  ORDER BY DESC(?date)
-LIMIT 5
+LIMIT 10
 """
 
 if (bioclipse.isOnline()) {
@@ -103,10 +103,16 @@ SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
   ?citationStatement ps:P2860 ?citedArticle .
   ?citedArticle wdt:P356 "${citedDOI}" .
   OPTIONAL {
-    ?citationStatement pq:P3712 ?INTENTION .
-    ?INTENTION wdt:P31 wd:Q96471816 ; wdt:P2888 ?intentionIRI .
-    OPTIONAL { ?citationStatement prov:wasDerivedFrom / pr:P12545 ?np }
-    BIND (substr(str(?intentionIRI),27) AS ?intention)
+    {
+      ?citationStatement pq:P3712 ?INTENTION .
+      ?INTENTION wdt:P31 wd:Q96471816 ; wdt:P2888 ?intentionIRI .
+      OPTIONAL { ?citationStatement prov:wasDerivedFrom / pr:P12545 ?np }
+      BIND (substr(str(?intentionIRI),27) AS ?intention)
+    } UNION {
+      ?citationStatement pq:P3712 wd:Q96471816 .
+      OPTIONAL { ?citationStatement prov:wasDerivedFrom / pr:P12545 ?np }
+      BIND ("cites" AS ?intention)
+    }
   }
 }
 """
