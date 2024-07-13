@@ -27,6 +27,7 @@
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
+import java.io.IOException
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
@@ -113,8 +114,12 @@ doisToProcess.each { doiToProcess ->
   if (!options.i) {
     oci2URL = new URL("https://opencitations.net/index/api/v1/references/${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${oci2URL} ..."
-    data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
-    data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
+    try {
+      data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
+      data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
+    } catch (IOException exception) {
+      println("# HTTP error: ${exception.message}")
+    }
     println("# Found cited DOIs for ${doiToProcess}: ${citedDOIs.size()}")
 
     // cited papers
