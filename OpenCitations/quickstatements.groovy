@@ -175,8 +175,12 @@ doisToProcess.each { doiToProcess ->
   if (!options.o) {
     ociURL = new URL("https://opencitations.net/index/api/v1/citations/${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${ociURL} ..."
-    data = new groovy.json.JsonSlurper().parseText(ociURL.text)
-    data.each { citation -> citingDOIs.add(citation.citing.toUpperCase()) }
+    try {
+      data = new groovy.json.JsonSlurper().parseText(ociURL.text)
+      data.each { citation -> citingDOIs.add(citation.citing.toUpperCase()) }
+    } catch (IOException exception) {
+      println("# HTTP error: ${exception.message}")
+    }
     println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
 
     // citing papers
