@@ -1,8 +1,8 @@
 // Copyright (C) 2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.2')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.0')
 
 import java.util.*
 import java.text.SimpleDateFormat;
@@ -17,14 +17,16 @@ String.metaClass.encodeURL = {
 }
 
 citoIntents = new HashMap<String,String>()
-citoIntents.put("extends","Q96472100")
-citoIntents.put("usesMethodIn","Q96472102")
-citoIntents.put("usesDataFrom","Q101149476")
 citoIntents.put("cites","Q96471816")
 citoIntents.put("citesAsRecommendedReading","Q111736358")
-citoIntents.put("updates","Q96473628")
 citoIntents.put("citesForInformation","Q96479970")
+citoIntents.put("critiques","Q105624924")
+citoIntents.put("discusses","Q96471822")
 citoIntents.put("disputes","Q117121923")
+citoIntents.put("extends","Q96472100")
+citoIntents.put("updates","Q96473628")
+citoIntents.put("usesMethodIn","Q96472102")
+citoIntents.put("usesDataFrom","Q101149476")
 
 sparql = """
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -50,7 +52,6 @@ select ?np ?subj ?citationrel ?obj ?date where {
     filter(regex(str(?obj), "doi.org/10"))
   }
 }  ORDER BY DESC(?date)
-LIMIT 10
 """
 
 if (bioclipse.isOnline()) {
