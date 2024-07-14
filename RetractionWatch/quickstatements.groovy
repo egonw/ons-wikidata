@@ -1,4 +1,4 @@
-// Copyright (C) 2023  Egon Willighagen
+// Copyright (C) 2023-2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
 
@@ -12,9 +12,9 @@
 
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.5.2')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.5.2')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='0.5.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.0')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.0')
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
