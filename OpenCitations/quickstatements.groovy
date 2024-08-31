@@ -22,8 +22,9 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.0')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.1-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.1-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.1-SNAPSHOT')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
@@ -33,6 +34,7 @@ workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
 rdf = new net.bioclipse.managers.RDFManager(workspaceRoot);
+wikidata = new net.bioclipse.managers.WikidataManager(workspaceRoot);
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +43,8 @@ def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.t(longOpt: 'token', args:1, argName:'token', 'OpenCitations Access Token')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
-cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing article')
+cli.a(longOpt: 'author', args:1, argName:'author', 'Wikidata ID of the author of the cited/citing articles')
+cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing articles')
 cli.i(longOpt: 'incoming-only', 'Return only citations to the articles with the DOIs')
 cli.o(longOpt: 'outgoing-only', 'Return only references in the articles with the DOIs')
 cli.r(longOpt: 'report', args:1, argName:'report', 'Report citing or cited DOIs (excluding preprints) not found in Wikidata yet in the given file')
@@ -72,9 +75,13 @@ if (options.doi && options.list) {
   println("Error: -d and -l cannot be used at the same time")
   System.exit(-1)
 }
+if (options.doi && options.author) {
+  println("Error: -d and -a cannot be used at the same time")
+  System.exit(-1)
+}
 
-if (!options.doi && !options.list) {
-  println("Error: Either -d or -l must be given")
+if (!options.doi && !options.list && !options.author) {
+  println("Error: Either -a, -d or -l must be given")
   System.exit(-1)
 }
 
@@ -91,6 +98,15 @@ if (options.list) {
     System.exit(-1)
   }
   doisToProcess = (doiFile as List)
+}
+
+if (options.author) {
+  doiList = wikidata.getDOIsForWorksOfAuthor(options.a)
+  if (doiList.size() == 0) {
+    println("Error: No works found in Wikidata for author ${author}")
+    System.exit(-1)
+  }
+  doisToProcess = doiList
 }
 
 println "qid,P2860,S248,s854,s813"
