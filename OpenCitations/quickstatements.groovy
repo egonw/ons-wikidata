@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2023  Egon Willighagen
+// Copyright (C) 2021-2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
 //
@@ -12,12 +12,13 @@
 //
 //   > groovy quickstatements.groovy -t token -d 10.1021/ACS.JCIM.0C01299 > output.qs
 //
-//   Alternatively, use the -l option to point to a file with a list of DOIs. The output is the
+//   Alternatively, use the -l option to point to a file with a list of DOIs, or the -a option
+//   for a list with all works by the given author. The output is the
 //   the same. The -h option gives additional help about these and other options.
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
-//     https://tools.wmflabs.org/quickstatements/
+//     https://quickstatements.toolforge.org/
 //
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
