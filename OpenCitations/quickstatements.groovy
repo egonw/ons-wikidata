@@ -23,9 +23,9 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.1')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.1')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.1')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.2')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.2')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.2')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
