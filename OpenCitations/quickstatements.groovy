@@ -23,9 +23,9 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.2')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.2')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.2')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.3')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.3')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.3')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
@@ -46,6 +46,7 @@ cli.t(longOpt: 'token', args:1, argName:'token', 'OpenCitations Access Token')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
 cli.a(longOpt: 'author', args:1, argName:'author', 'Wikidata ID of the author of the cited/citing articles')
 cli.v(longOpt: 'venue', args:1, argName:'venue', 'Wikidata ID of the venue of the cited/citing articles')
+cli.s(longOpt: 'subject', args:1, argName:'subject', 'Wikidata ID of the subject of the cited/citing articles')
 cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing articles')
 cli.i(longOpt: 'incoming-only', 'Return only citations to the articles with the DOIs')
 cli.o(longOpt: 'outgoing-only', 'Return only references in the articles with the DOIs')
@@ -78,12 +79,13 @@ if (options.doi) optionCount++
 if (options.list) optionCount++
 if (options.author) optionCount++
 if (options.venue) optionCount++
+if (options.subject) optionCount++
 
 if (optionCount > 1) {
-  println("Error: -a, -d, -v and -l cannot be used at the same time")
+  println("Error: -a, -d, -v, -s, and -l cannot be used at the same time")
   System.exit(-1)
 } else if (optionCount < 1) {
-  println("Error: Either -a, -d, -v or -l must be given")
+  println("Error: Either -a, -d, -v, -s, or -l must be given")
   System.exit(-1)
 }
 
@@ -103,11 +105,9 @@ if (options.list) {
 }
 
 if (options.author) {
-  println options.author
   doiList = wikidata.getDOIsForWorksOfAuthor(options.a)
-  println doiList
   if (doiList.size() == 0) {
-    println("Error: No works found in Wikidata for author ${author}")
+    println("Error: No works found in Wikidata for author ${options.author}")
     System.exit(-1)
   }
   doisToProcess = doiList
@@ -116,7 +116,16 @@ if (options.author) {
 if (options.venue) {
   doiList = wikidata.getDOIsForWorksOfVenue(options.v)
   if (doiList.size() == 0) {
-    println("Error: No works found in Wikidata for venue ${author}")
+    println("Error: No works found in Wikidata for venue ${options.venue}")
+    System.exit(-1)
+  }
+  doisToProcess = doiList
+}
+
+if (options.subject) {
+  doiList = wikidata.getDOIsForWorksForTopic(options.s)
+  if (doiList.size() == 0) {
+    println("Error: No works found in Wikidata for subject ${options.subject}")
     System.exit(-1)
   }
   doisToProcess = doiList
@@ -135,10 +144,10 @@ if (options.report) println "# Reporting missing DOIs in the file ${options.repo
 
 missingDOIs = new java.util.HashSet()
 doisToProcess.each { doiToProcess ->
-  sleep(250)
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
+  sleep(125)
   citedDOIs = new java.util.HashSet()
   if (!options.i) {
     oci2URL = new URL("https://opencitations.net/index/api/v1/references/${doiToProcess}")
@@ -199,7 +208,8 @@ doisToProcess.each { doiToProcess ->
       println "# Too many cited articles. Skipping"
     }
   }
-  
+
+  sleep(125)  
   citingDOIs = new ArrayList()
   if (!options.o) {
     ociURL = new URL("https://opencitations.net/index/api/v1/citations/${doiToProcess}")
