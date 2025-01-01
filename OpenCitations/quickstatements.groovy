@@ -187,7 +187,8 @@ doisToProcess.each { doiToProcess ->
       println "# cited articles for ${doiToProcess}"
       map.each { citedDOI, qid ->
         safeOciURL = oci2URL.toString().replaceAll("<","%3C").replaceAll(">", "%3E")
-        if (citedDOI != doiToProcess) println "${citingQID},${qid},Q107507940,\"\"\"${safeOciURL}\"\"\",+${date}T00:00:00Z/11"
+        if (citedDOI != doiToProcess && citingQID != null && qid != null)
+          println "${citingQID},${qid},Q107507940,\"\"\"${safeOciURL}\"\"\",+${date}T00:00:00Z/11"
       }
 
       if (options.report) {
