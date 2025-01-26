@@ -1,8 +1,8 @@
 // Copyright (C) 2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.0')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.0')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.4')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.4')
 
 import java.util.*
 import java.text.SimpleDateFormat;
@@ -18,12 +18,19 @@ String.metaClass.encodeURL = {
 
 citoIntents = new HashMap<String,String>()
 citoIntents.put("cites","Q96471816")
+citoIntents.put("citesAsAuthority","Q96479983")
+citoIntents.put("citesAsDataSource","Q96471820")
+citoIntents.put("citesAsEvidence","Q111736347")
+citoIntents.put("citesAsPotentialSolution","Q105780079")
 citoIntents.put("citesAsRecommendedReading","Q111736358")
+citoIntents.put("citesAsRelated","Q117121917")
 citoIntents.put("citesForInformation","Q96479970")
+citoIntents.put("confirms","Q96480427")
 citoIntents.put("critiques","Q105624924")
 citoIntents.put("discusses","Q96471822")
 citoIntents.put("disputes","Q117121923")
 citoIntents.put("extends","Q96472100")
+citoIntents.put("repliesTo","Q107438271")
 citoIntents.put("updates","Q96473628")
 citoIntents.put("usesMethodIn","Q96472102")
 citoIntents.put("usesDataFrom","Q101149476")
@@ -51,7 +58,8 @@ select ?np ?subj ?citationrel ?obj ?date where {
     filter(regex(str(?subj), "doi.org/10"))
     filter(regex(str(?obj), "doi.org/10"))
   }
-}  ORDER BY DESC(?date)
+} ORDER BY DESC(?date)
+  LIMIT 25
 """
 
 if (bioclipse.isOnline()) {
