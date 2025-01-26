@@ -1,5 +1,5 @@
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.4.0')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.4.0')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.4')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.4')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,28 +20,16 @@ if (!ui.fileExists(lipidmapstxt)) {
   allData = bioclipse.downloadAsFile(restAPI, lipidmapstxt)
 }
 
-cache = "/LipidMaps/wikidata.cached"
-if (ui.fileExists(cache)) {
-  // rawResults = 
-  results = rdf.processSPARQLXML(rawResults, sparql)
-} else {
-  sparql = """
-  PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-  SELECT ?wd ?key ?value WHERE {
-    SERVICE <https://query.wikidata.org/sparql> {
-      SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
-        ?compound wdt:P235 ?key .
-        OPTIONAL { ?compound wdt:${property} ?value . }
-      }
-    }
-  }
-  """
-  if (bioclipse.isOnline()) {
-    rawResults = bioclipse.sparqlRemote(
-      "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
-    )
-    ui.append(cache, rawResults)
-    results = rdf.processSPARQLXML(rawResults, sparql)
+// run:
+// curl -s https://qlever.cs.uni-freiburg.de/api/wikidata -H "Accept: text/tab-separated-values" -H "Content-type: application/sparql-query" --data "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT (substr(str(?compound),32) as ?wd) ?key ?value WHERE { ?compound wdt:P235 ?key . OPTIONAL { ?compound wdt:P2063 ?value } }" > wikidata.cached
+
+// make a map InChIKey -> Wikidata QID
+map = new HashMap()
+new File(bioclipse.fullPath("/LipidMaps/wikidata.cached")).eachLine{ line ->
+  if (line.startsWith("?wd")) {}
+  else {
+    fields = line.split("\t")
+    map.put(fields[1].replaceAll("\"",""), fields[0].replaceAll("\"",""))
   }
 }
 
@@ -58,7 +46,6 @@ if (bioclipse.isOnline()) {
   )
 }
 
-
 def renewFile(file) {
   if (ui.fileExists(file)) ui.remove(file)
   ui.newFile(file)
@@ -71,13 +58,6 @@ missingCompoundFile = "/LipidMaps/missing.txt"
 // ignore certain Wikidata items, where I don't want the LipidMaps ID added
 ignores = new java.util.HashSet();
 // ignores.add("Q37111097")
-
-// make a map InChIKey -> Wikidata QID
-map = new HashMap()
-for (i=1;i<=results.rowCount;i++) {
-  rowVals = results.getRow(i)
-  map.put(rowVals[1], rowVals[0])
-}
 
 // make a map LMID -> Wikidata QID
 lmidMap = new HashMap()
