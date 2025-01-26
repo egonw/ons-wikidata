@@ -45,6 +45,7 @@ propertyMappings.put("P2064", "P2064") // knapsack
 propertyMappings.put("P661",  "P661")  // chemspider
 propertyMappings.put("P662",  "P662")  // pubchem
 propertyMappings.put("P3636", "P3636") // pdb
+propertyMappings.put("P8691", "P8691") // swisslipids
 propertyMappings.put("P9405", "P9405") // nmr
 
 propertyMappings.put("P31",   "P31")   // instance of
@@ -170,6 +171,7 @@ if (options.identifier) {
     case "pubchem": idProperty = propertyMappings.get("P662"); break
     case "pdb": idProperty = propertyMappings.get("P3636"); break
     case "nmr": idProperty = propertyMappings.get("P9405"); break // nmrshiftdb
+    case "swisslipids": idProperty = propertyMappings.get("P8691"); break
     case "wikidata": idProperty = options.d ? options.d : null ; break
     default: println "Unknown identifier database: ${options.identifier}"; System.exit(-1)
   }
