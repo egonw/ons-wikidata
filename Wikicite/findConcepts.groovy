@@ -39,6 +39,7 @@ cli.s(longOpt: 'search-string', args:1, argName:'query', 'Search this query in t
 cli.q(longOpt: 'qid', args:1, argName:'qid', 'QID of the item to set as main item')
 cli.i(longOpt: 'i', args:1, argName:'include', 'Comma-separated list of QIDs that must also be main subject')
 cli.x(longOpt: 'x', args:1, argName:'exclude', 'Comma-separated list of QIDs that must not be main subject (either)')
+cli.n(longOpt: 'noMainSubject', 'Exclude any item that has any main subject')
 def options = cli.parse(args)
 
 if (options.help) {
@@ -108,13 +109,16 @@ if (includeTopics.size() > 0) {
   for (qid in includeTopics) includeSPARQL += " haswbstatement:P921=${qid}"
 }
 
+mwapiSearch = """mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ${excludeSPARQL}${includeSPARQL}";"""
+if (options.n) mwapiSearch = """mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921";"""
+
 sparql = """
   SELECT DISTINCT ?art ?artTitle
   WHERE {
     SERVICE wikibase:mwapi {
       bd:serviceParam wikibase:endpoint "www.wikidata.org";
         wikibase:api "Search";
-        mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ${excludeSPARQL}${includeSPARQL}";
+        ${mwapiSearch}
         mwapi:srlimit "max".
       ?art wikibase:apiOutputItem mwapi:title.
     }
