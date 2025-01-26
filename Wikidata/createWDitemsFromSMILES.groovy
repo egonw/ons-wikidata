@@ -83,6 +83,7 @@ cli.s(longOpt: 'full-chirality', 'Only output statements for compounds with full
 cli.t(longOpt: 'taxon', args:1, argName:'taxon', 'QID of the taxon in which this compound is found')
 cli.w(longOpt: 'wikibase', args:1, argName:'wikibase', 'URL of the Wikibase to use, if different from www.wikidata.org')
 cli.x(longOpt: 'exclude-disconnected-compounds', 'Exclude all disconnected compounds, like salts')
+cli.z(longOpt: 'zupplementary-statements', args:1, argName:'zupplementary-statements', 'Add supplemetary statements in the form Px,Qy')
 def options = cli.parse(args)
 
 if (options.help) {
@@ -102,6 +103,13 @@ if (options.l) {
 compoundClassQ = null
 if (options.c) {
   compoundClassQ = options.c
+}
+
+zuppLine = ""
+if (options.z) {
+  paramValue = options.z
+  println paramValue
+  zuppLine = "\tLAST\t" + paramValue.replaceAll(",","\t") + "\n"
 }
 
 sparqlEP = "https://query.wikidata.org/sparql"
@@ -491,6 +499,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       newInfo = true
     }
 
+    if (options.z) {
+      statement += zuppLine.replaceAll("LAST", "Q$item")
+    }
+
     ui.append(qsFile, statement + "\n")
     
     // Recon stuff
@@ -557,6 +569,8 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       if (idProperty == pubchemProp && pubchemLine.contains(pubchemProp)) {} else
       statement += "  $item\t$idProperty\t\"$extid\"$paperProv"
     }
+
+    if (options.z) statement += zuppLine
 
     ui.append(qsFile, statement + "\n")
     println "===================="
