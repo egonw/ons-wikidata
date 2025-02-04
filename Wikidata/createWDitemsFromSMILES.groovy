@@ -109,7 +109,7 @@ zuppLine = ""
 if (options.z) {
   paramValue = options.z
   println paramValue
-  zuppLine = "\tLAST\t" + paramValue.replaceAll(",","\t") + "\n"
+  zuppLine = "\n\tLAST\t" + paramValue.replaceAll(",","\t") + "\n"
 }
 
 sparqlEP = "https://query.wikidata.org/sparql"
