@@ -171,7 +171,7 @@ doisToProcess.each { doiToProcess ->
       sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
       if (bioclipse.isOnline()) {
         rawResults = bioclipse.sparqlRemote(
-          "https://query.wikidata.org/sparql", sparql
+          "https://query-scholarly.wikidata.org/sparql", sparql
         )
         results = rdf.processSPARQLXML(rawResults, sparql)
       }
@@ -195,7 +195,7 @@ doisToProcess.each { doiToProcess ->
         // report all the DOIs that are not in Wikidata
         sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
         if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+          rawResults = bioclipse.sparqlRemote("https://query-scholarly.wikidata.org/sparql", sparql  )
           results = rdf.processSPARQLXML(rawResults, sparql)
         }
         for (i=1;i<=results.rowCount;i++) {
@@ -241,7 +241,7 @@ doisToProcess.each { doiToProcess ->
       }
       sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
       if (bioclipse.isOnline()) {
-        rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+        rawResults = bioclipse.sparqlRemote("https://query-scholarly.wikidata.org/sparql", sparql  )
         results = rdf.processSPARQLXML(rawResults, sparql)
       }
       // make a map
@@ -262,7 +262,7 @@ doisToProcess.each { doiToProcess ->
         // report all the DOIs that are not in Wikidata
         sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
         if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://query.wikidata.org/sparql", sparql  )
+          rawResults = bioclipse.sparqlRemote("https://query-scholarly.wikidata.org/sparql", sparql  )
           results = rdf.processSPARQLXML(rawResults, sparql)
         }
         for (i=1;i<=results.rowCount;i++) {
