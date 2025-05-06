@@ -285,7 +285,10 @@ if (options.r || options.R) {
       if (options.r) {
         // check if the DOI is from a (recognized) preprint server
         if (!(
+          it.starsWith("10.48550") || // arXiv
           it.startsWith("10.1101") || // bioRxviv
+          it.startsWith("10.26434") || // ChemRxiv
+          it.startsWith("10.20944) || // preprints.org
           it.startsWith("10.21203"))) // ResearchSquare
           out.println it
       } else {
