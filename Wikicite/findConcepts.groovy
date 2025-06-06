@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.4')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.5')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.5')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.5')
 
 import groovy.cli.commons.CliBuilder
 
@@ -132,7 +132,7 @@ sparql = """
       // print sparql
       rawResults = bioclipse.sparqlRemote(
         // "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
-        "https://query.wikidata.org/sparql", sparql
+        "https://query-scholarly.wikidata.org/sparql", sparql
       )
       results = rdf.processSPARQLXML(rawResults, sparql)
       missing = results.rowCount == 0
