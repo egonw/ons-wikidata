@@ -1,8 +1,8 @@
 // Copyright (C) 2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.4')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.6-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.6-SNAPSHOT')
 
 import java.util.*
 import java.text.SimpleDateFormat;
@@ -31,6 +31,7 @@ citoIntents.put("discusses","Q96471822")
 citoIntents.put("disputes","Q117121923")
 citoIntents.put("extends","Q96472100")
 citoIntents.put("repliesTo","Q107438271")
+citoIntents.put("supports","Q110977857")
 citoIntents.put("updates","Q96473628")
 citoIntents.put("usesMethodIn","Q96472102")
 citoIntents.put("usesDataFrom","Q101149476")
@@ -59,7 +60,7 @@ select ?np ?subj ?citationrel ?obj ?date where {
     filter(regex(str(?obj), "doi.org/10"))
   }
 } ORDER BY DESC(?date)
-  LIMIT 25
+  LIMIT 20
 """
 
 if (bioclipse.isOnline()) {
@@ -84,7 +85,7 @@ allDOIs.each { doi ->
 sparql = "SELECT DISTINCT ?work ?doi WHERE { VALUES ?doi { ${values} } ?work wdt:P356 ?doi }"
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.sparqlRemote(
-    "https://query.wikidata.org/sparql", sparql
+    "https://query-scholarly.wikidata.org/sparql", sparql
   )
   results = rdf.processSPARQLXML(rawResults, sparql)
 }
@@ -127,7 +128,7 @@ SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
 """
   if (bioclipse.isOnline()) {
     rawResults = bioclipse.sparqlRemote(
-      "https://query.wikidata.org/sparql", sparql
+      "https://query-legacy-full.wikidata.org/sparql", sparql
     )
     results = rdf.processSPARQLXML(rawResults, sparql)
   }
