@@ -23,9 +23,9 @@
 //   If you used this script, please cite this repository and/or doi:10.21105/joss.02558
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.5')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.5')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.5')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.7')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
@@ -46,6 +46,7 @@ cli.t(longOpt: 'token', args:1, argName:'token', 'OpenCitations Access Token')
 cli.d(longOpt: 'doi', args:1, argName:'doi', 'DOI of the cited/citing article')
 cli.a(longOpt: 'author', args:1, argName:'author', 'Wikidata ID of the author of the cited/citing articles')
 cli.v(longOpt: 'venue', args:1, argName:'venue', 'Wikidata ID of the venue of the cited/citing articles')
+cli.e(longOpt: 'event', args:1, argName:'event', 'Wikidata ID of the event attended by people who wrote the cited/citing articles')
 cli.s(longOpt: 'subject', args:1, argName:'subject', 'Wikidata ID of the subject of the cited/citing articles')
 cli.l(longOpt: 'list', args:1, argName:'list', 'name of a file with a list of DOI of the cited/citing articles')
 cli.i(longOpt: 'incoming-only', 'Return only citations to the articles with the DOIs')
@@ -80,12 +81,13 @@ if (options.list) optionCount++
 if (options.author) optionCount++
 if (options.venue) optionCount++
 if (options.subject) optionCount++
+if (options.event) optionCount++
 
 if (optionCount > 1) {
-  println("Error: -a, -d, -v, -s, and -l cannot be used at the same time")
+  println("Error: -a, -d, -v, -s, -e, and -l cannot be used at the same time")
   System.exit(-1)
 } else if (optionCount < 1) {
-  println("Error: Either -a, -d, -v, -s, or -l must be given")
+  println("Error: Either -a, -d, -v, -s, -e, or -l must be given")
   System.exit(-1)
 }
 
@@ -122,6 +124,15 @@ if (options.venue) {
   doisToProcess = doiList
 }
 
+if (options.event) {
+  doiList = wikidata.getDOIsForWorksForPeopleAtEvent(options.e)
+  if (doiList.size() == 0) {
+    println("Error: No works found in Wikidata for event ${options.event}")
+    System.exit(-1)
+  }
+  doisToProcess = doiList
+}
+
 if (options.subject) {
   doiList = wikidata.getDOIsForWorksForTopic(options.s)
   if (doiList.size() == 0) {
@@ -143,6 +154,7 @@ if (options.i) println "# Only reporting citing articles"
 if (options.report) println "# Reporting missing DOIs in the file ${options.report}"
 
 missingDOIs = new java.util.HashSet()
+println "# Processing ${doisToProcess.size()} DOIs"
 doisToProcess.each { doiToProcess ->
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
