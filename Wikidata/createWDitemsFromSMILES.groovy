@@ -15,11 +15,11 @@
 //     http://quickstatements.toolforge.org/
 
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='1.0.4')
-@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='1.0.4')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-pubchem', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-inchi', version='1.0.7')
 
 import groovy.cli.commons.CliBuilder
 
@@ -34,6 +34,9 @@ pubchem = new net.bioclipse.managers.PubChemManager(workspaceRoot);
 smiFile = "/Wikidata/cas.smi"; 
 
 propertyMappings = new HashMap<String,String>()
+propertyMappings.put("P31",   "P31")   // instance of
+propertyMappings.put("P279",  "P279")  // subclass of
+
 propertyMappings.put("P2057", "P2057") // hmdb
 propertyMappings.put("P3117", "P3117") // comptox
 propertyMappings.put("P2063", "P2063") // lipidmaps
@@ -48,7 +51,6 @@ propertyMappings.put("P3636", "P3636") // pdb
 propertyMappings.put("P8691", "P8691") // swisslipids
 propertyMappings.put("P9405", "P9405") // nmr
 
-propertyMappings.put("P31",   "P31")   // instance of
 propertyMappings.put("P233",  "P233")  // canonical SMILES
 propertyMappings.put("P234",  "P234")  // InChI
 propertyMappings.put("P235",  "P235")  // InChIKey
@@ -56,6 +58,7 @@ propertyMappings.put("P248",  "P248")  // stated in
 propertyMappings.put("P274",  "P274")  // chemical formula
 propertyMappings.put("P703",  "P703")  // found in taxon
 propertyMappings.put("P887",  "P887")  // based on heuristic
+propertyMappings.put("P921",  "P921")  // main subject
 propertyMappings.put("P2017", "P2017") // isomeric SMILES
 propertyMappings.put("P2067", "P2067") // mass
 
@@ -75,6 +78,7 @@ cli.f(longOpt: 'input-file', args:1, argName:'filename', 'Name of the file conta
 cli.h(longOpt: 'help', 'print this message')
 cli.i(longOpt: 'identifier', args:1, argName:'identifier', 'Name of the database for which the identifiers are given')
 cli.l(longOpt: 'with-labels', 'Take the field after the SMILES as the label of the compound')
+cli.m(longOpt: 'main-subject-of', args:1, argName:'main-subject-of', 'QID of the article that has this compound as main subject')
 cli.n(longOpt: 'non-existing-only', 'Only output non-existing chemicals')
 cli.o(longOpt: 'output-file', args:1, argName:'output', 'Name of the file where the quickstatements are stored')
 cli.p(longOpt: 'paper', args:1, argName:'paper', 'QID of the article that backs up that this compound is a chemical')
@@ -223,6 +227,8 @@ ui.renewFile(qsFile)
 mols = cdk.createMoleculeList()
 
 instanceOfProp        = propertyMappings.get("P31")
+subclassOfProp        = propertyMappings.get("P279")
+
 canSmilesProp         = propertyMappings.get("P233")
 inchiProp             = propertyMappings.get("P234")
 inchikeyProp          = propertyMappings.get("P235")
@@ -231,6 +237,7 @@ chemFormulaProp       = propertyMappings.get("P274")
 pubchemProp           = propertyMappings.get("P662")
 foundInTaxonProp      = propertyMappings.get("P703")
 basedOnHeuristicProp  = propertyMappings.get("P887").replace("P", "S")
+mainSubjectProp       = propertyMappings.get("P921")
 isoSmilesProp         = propertyMappings.get("P2017")
 massProp              = propertyMappings.get("P2067")
 chemicalCompoundItem  = propertyMappings.get("Q11173")
@@ -422,7 +429,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     item = existingQcode.split("/Q")[1]
     pubchemLine = pubchemLine.replace("LAST", "Q" + item)
 
-    if (compoundClassQ != null) classInfo = "Q$item\t$instanceOfProp\t$compoundClassQ"
+    if (compoundClassQ != null) classInfo = "Q$item\t$subclassOfProp\t$compoundClassQ"
 
     newInfo = false
 
@@ -437,6 +444,11 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
         $classInfo$paperProv\n"""
     } else {
       statement = ""
+    }
+
+    // but if a label is given, still output that
+    if (name.length() > 0) {
+      if (name.length() < 200) statement += "      Q$item\tLen\t\"${name}\"\n    "
     }
 
     // check for missing properties
@@ -546,7 +558,7 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
       """
     } else statement = ""
 
-    if (compoundClassQ != null) statement += "$item\t$instanceOfProp\t$compoundClassQ$paperProv\n"
+    if (compoundClassQ != null) statement += "$item\t$subclassOfProp\t$compoundClassQ$paperProv\n"
    
     statement += """
       $typeInfo
@@ -568,6 +580,10 @@ new File(bioclipse.fullPath(smiFile)).eachLine { line ->
     if (idProperty != null && idProperty != "") {
       if (idProperty == pubchemProp && pubchemLine.contains(pubchemProp)) {} else
       statement += "  $item\t$idProperty\t\"$extid\"$paperProv"
+    }
+
+    if (options.m) {
+      statement += "  ${options.m}\t$mainSubjectProp\t$item\n"
     }
 
     if (options.z) statement += zuppLine

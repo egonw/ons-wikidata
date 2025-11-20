@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2022  Egon Willighagen
+// Copyright (C) 2018-2025  Egon Willighagen
 //               2018       Denise Slenter
 // License: MIT
 
@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.5')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.5')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.5')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.7')
 
 import groovy.cli.commons.CliBuilder
 
@@ -83,6 +83,8 @@ if (concept == null | conceptQ == null) {
 // the next is a list of false positives (all lower case)
 
 blacklist = [
+  "-12-crown-4",
+  "12-crown-4-"
 ]
 
 // the code (don't change)
@@ -112,6 +114,7 @@ if (includeTopics.size() > 0) {
 mwapiSearch = """mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921=$conceptQ${excludeSPARQL}${includeSPARQL}";"""
 if (options.n) mwapiSearch = """mwapi:srsearch "$concept haswbstatement:P31=Q13442814 -haswbstatement:P921";"""
 
+outputted = new HashSet<String>()
 sparql = """
   SELECT DISTINCT ?art ?artTitle
   WHERE {
@@ -151,9 +154,12 @@ sparql = """
           if (!blacklisted) {
             artIRI = results.get(artCounter, "art")
             artQ = artIRI.substring(31)
-            printlnOutput += "${artQ}\t${artTitle}\n"
-            artTitle = artTitle.replaceAll(",", ";")
-            fileOutput += "${artQ},${conceptQ},Q69652283,\"\"\"$originalConcept\"\"\",+${date}T00:00:00Z/11,${artTitle}\n"
+            if (!outputted.contains(artQ)) {
+              printlnOutput += "${artQ}\t${artTitle}\n"
+              artTitle = artTitle.replaceAll(",", ";")
+              outputted.add(artQ)
+              fileOutput += "${artQ},${conceptQ},Q69652283,\"\"\"$originalConcept\"\"\",+${date}T00:00:00Z/11,${artTitle}\n"
+            }
           }
         }
         print(printlnOutput)

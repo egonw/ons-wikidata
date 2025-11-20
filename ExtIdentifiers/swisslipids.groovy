@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2023  Egon Willighagen
+// Copyright (C) 2018-2025  Egon Willighagen
 // License: MIT
 
 // Usage:
@@ -7,12 +7,12 @@
 //
 //   The output of this script is a set of QuickStatements that can be uploaded here:
 //
-//     https://tools.wmflabs.org/quickstatements/
+//     https://quickstatements.toolforge.org/
 //
 //   Use, see: https://github.com/elixir-europe/biohackathon-projects-2021/blob/main/projects/6/SwissLipid-in-Wikidata.md
 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='0.3.3')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='0.3.3')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.4')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.4')
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,27 +30,25 @@ referenceURL = "https://www.swisslipids.org/#/downloads"
 input = "/ExtIdentifiers/swisslipids_ids.tsv"
 splitString = ","
 idIndex = 0
-inchikeyIndex = 1
+inchikeyIndex = 2
+smilesIndex = 1
+lmidIndex = 3
 
 // ignore certain Wikidata items, where I don't want the values added
 ignores = new java.util.HashSet();
 
 sparql = """
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-SELECT ?wd ?key ?value WHERE {
-  SERVICE <https://query.wikidata.org/sparql> {
-    SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
-      ?compound wdt:P235 ?key .
-      OPTIONAL { ?compound wdt:${property} ?value . }
-    }
-  }
+SELECT (substr(str(?compound),32) as ?wd) ?key ?value WHERE {
+  ?compound wdt:P235 ?key .
+  OPTIONAL { ?compound wdt:${property} ?value . }
 }
 """
 println sparql
 
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.sparqlRemote(
-    "https://beta.sparql.swisslipids.org/sparql?format=xml", sparql
+    "https://qlever.cs.uni-freiburg.de/api/wikidata", sparql
   )
   results = rdf.processSPARQLXML(rawResults, sparql)
 }
@@ -71,9 +69,13 @@ map = new HashMap()
 existingMappings = new HashSet()
 for (i=1;i<=results.rowCount;i++) {
   rowVals = results.getRow(i)
+  // println "--${rowVals[2]}--"
   if (rowVals[2] == "") {
+    // println "-- missing mapping --"
+    // println "-- ${rowVals[1]} -> ${rowVals[0]} --"
     map.put(rowVals[1], rowVals[0])
   } else {
+    // println "-- already done --"
     existingMappings.add(rowVals[1])
   }
 }
@@ -90,11 +92,14 @@ renewFile(missingCompoundFile)
 String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 new File(bioclipse.fullPath(input)).eachLine{ line ->
   fields = (splitString != null) ? line.split(splitString) : line.split()
-  if (fields.length < 2) {
+  if (fields.length < 4) {
     return
   }
   extid = fields[idIndex]
   inchikey = fields[inchikeyIndex]
+  println "-- ${inchikey} -> ${map.containsKey(inchikey)} --"
+  lmid = fields[lmidIndex]
+  smiles = fields[smilesIndex]
   batchCounter++
   if (map.containsKey(inchikey)) {
     wdid = map.get(inchikey)
@@ -105,7 +110,8 @@ new File(bioclipse.fullPath(input)).eachLine{ line ->
         "\tS813\t+${date}T00:00:00Z/11\n";
     }
   } else if (!existingMappings.contains(inchikey)) {
-    missingContent += "${inchikey}\n"
+    missingContent += "#${inchikey}\n"
+    missingContent += "${smiles}\t${extid}\n"
   }
   if (batchCounter >= batchSize) {
     ui.append(mappingsFile, mappingContent)
