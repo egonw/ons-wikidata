@@ -10,11 +10,11 @@
 // 50438,Construction of Mental Health Education Model Based on Computer Multimedia Group Psychological Measurement,(B/T) Technology;(SOC) Education;(SOC) Psychology;,"Education Department, Taiyuan Normal University, Taiyuan, Shanxi, China;",Advances in Multimedia,Hindawi,China,Haiyan Zhang,https://retractionwatch.com/2022/09/28/exclusive-hindawi-and-wiley-to-retract-over-500-papers-linked-to-peer-review-rings/;https://retractionwatch.com/2023/04/05/wiley-and-hindawi-to-retract-1200-more-papers-for-compromised-peer-review/,Research Article;,8/16/2023 0:00,10.1155/2023/9804945,0,9/24/2021 0:00,10.1155/2021/6907871,0,Retraction,+Concerns/Issues About Data;+Concerns/Issues About Results;+Concerns/Issues about Referencing/Attributions;+Concerns/Issues with Peer Review;+Investigation by Journal/Publisher;+Investigation by Third Party;+Randomly Generated Content;+Unreliable Results;,No,See also: https://pubpeer.com/publications/7309DC051DD46825091B5F5FC6B0E9
 // ...
 
-
 // Bacting config
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.6-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.6-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.6-SNAPSHOT')
+@GrabResolver(name='central', root='https://mvnrepository.com/artifact/')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.7')
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -36,6 +36,7 @@ class RetractedArticle {
   String doi;
   String noticeDoi;
   String noticeQid;
+  String retractionDate;
   String urls;
 }
 
@@ -53,6 +54,10 @@ for (CSVRecord record : records) {
     retracted.doi = doi
     retractionDOI = record.get("RetractionDOI")
     retracted.noticeDoi = retractionDOI
+    retractionDate = record.get("RetractionDate") // example: "3/20/2024 0:00"
+    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy H:m", Locale.ENGLISH);
+    Date jdate = formatter.parse(retractionDate);
+    retracted.retractionDate = new SimpleDateFormat("yyyy-MM-dd").format(jdate);
     dois.add(doi)
     dois.add(retractionDOI)
     if (record.get("URLS").length() > 0)
@@ -94,7 +99,7 @@ retractedArticles.each { doi, retractedArticle ->
   if (retractedArticle.qid != null &&                    // filter out false hits
       !knownRetracted.contains(retractedArticle.qid) &&  // the paper is not already marked as retracted
       !knownNotices.contains(retractedArticle.qid)) {    // sometimes the metadata is funny, so make sure it's not a retraction notice
-    println "\t${retractedArticle.qid}\tP31\tQ45182324${source}"
+    println "\t${retractedArticle.qid}\tP31\tQ45182324\tP580\t+${retractedArticle.retractionDate}T00:00:00Z/11${source}"
     if (retractedArticle.noticeQid != null)
       println "\t${retractedArticle.qid}\tP5824\t${retractedArticle.noticeQid}${source}"
   }

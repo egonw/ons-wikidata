@@ -19,6 +19,7 @@ wikipediaLang = "en"
 
 missingDOIs.eachLine { line ->
   doi = line.trim()
+  if ("unavailable".equals(doi.toLowerCase())) return
   println "Searching ${doi} in Wikipedia..."
   
   sparql = """
