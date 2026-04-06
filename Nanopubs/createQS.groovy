@@ -1,8 +1,8 @@
 // Copyright (C) 2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.6-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.6-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.10')
 
 import java.util.*
 import java.text.SimpleDateFormat;
@@ -30,6 +30,7 @@ citoIntents.put("critiques","Q105624924")
 citoIntents.put("discusses","Q96471822")
 citoIntents.put("disputes","Q117121923")
 citoIntents.put("extends","Q96472100")
+citoIntents.put("includesQuotationFrom","Q117121926")
 citoIntents.put("repliesTo","Q107438271")
 citoIntents.put("supports","Q110977857")
 citoIntents.put("updates","Q96473628")
@@ -60,12 +61,12 @@ select ?np ?subj ?citationrel ?obj ?date where {
     filter(regex(str(?obj), "doi.org/10"))
   }
 } ORDER BY DESC(?date)
-  LIMIT 20
+  LIMIT 100
 """
 
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.download(
-    "https://query.np.trustyuri.net/repo/type/2c1cce3f3152738c1009d59251409392aaaa3b0324bcb5fdfb4b7b944b8f0c18?query=" + sparql.encodeURL(),
+    "https://query.knowledgepixels.com/repo/type/2c1cce3f3152738c1009d59251409392aaaa3b0324bcb5fdfb4b7b944b8f0c18?query=" + sparql.encodeURL(),
     "application/sparql-results+xml"
   )
   npResults = rdf.processSPARQLXML(rawResults.getBytes(), sparql)
@@ -82,10 +83,10 @@ values = "" // we also need a QID for the citing article
 allDOIs.each { doi ->
   values += "\"${doi.toUpperCase()}\" "
 }
-sparql = "SELECT DISTINCT ?work ?doi WHERE { VALUES ?doi { ${values} } ?work wdt:P356 ?doi }"
+sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE { VALUES ?doi { ${values} } ?work wdt:P356 ?doi }"
 if (bioclipse.isOnline()) {
   rawResults = bioclipse.sparqlRemote(
-    "https://query-scholarly.wikidata.org/sparql", sparql
+    "https://qlever.dev/api/wikidata", sparql
   )
   results = rdf.processSPARQLXML(rawResults, sparql)
 }
@@ -107,7 +108,13 @@ for (row in 1..npResults.getRowCount()) {
   citedDOI = "10." + npResults.get(row, "obj").split("10\\.")[1].toUpperCase()
   date = npResults.get(row, "date")
   println "# == NanoPubicliation: ${citingDOI} (${doiToWikidata.get(citingDOI)}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI)})"
-  sparql = """
+  sparql = """PREFIX p: <http://www.wikidata.org/prop/>
+PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX ps: <http://www.wikidata.org/prop/statement/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
   ?citingArticle p:P2860 ?citationStatement ; wdt:P356 "${citingDOI}" .
   ?citationStatement ps:P2860 ?citedArticle .
@@ -128,7 +135,7 @@ SELECT DISTINCT ?citingArticle ?intention ?citedArticle ?np WHERE {
 """
   if (bioclipse.isOnline()) {
     rawResults = bioclipse.sparqlRemote(
-      "https://query-legacy-full.wikidata.org/sparql", sparql
+      "https://qlever.dev/api/wikidata", sparql
     )
     results = rdf.processSPARQLXML(rawResults, sparql)
   }
