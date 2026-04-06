@@ -16,26 +16,72 @@ String.metaClass.encodeURL = {
    java.net.URLEncoder.encode(delegate, "UTF-8")
 }
 
+// Use this SPARQL to update the below map:
+//
+// SELECT ?java WHERE{
+//   ?o wdt:P31 wd:Q96471816 ;
+//      rdfs:label ?l ;
+//      wdt:P2888 ?exactMatch .
+//   FILTER(LANG(?l)='en')
+//   BIND(
+//     CONCAT(
+//       "citoIntents.put(\"",
+//       SUBSTR(STR(?exactMatch),27),"\",\"",
+//       SUBSTR(STR(?o),32),"\")"
+//     ) AS ?java
+//   )
+// } ORDER BY ASC(STR(?exactMatch))
+
 citoIntents = new HashMap<String,String>()
+citoIntents.put("agreesWith","Q96604140")
 citoIntents.put("cites","Q96471816")
 citoIntents.put("citesAsAuthority","Q96479983")
 citoIntents.put("citesAsDataSource","Q96471820")
 citoIntents.put("citesAsEvidence","Q111736347")
+citoIntents.put("citesAsMetadataDocument","Q117121916")
 citoIntents.put("citesAsPotentialSolution","Q105780079")
 citoIntents.put("citesAsRecommendedReading","Q111736358")
 citoIntents.put("citesAsRelated","Q117121917")
+citoIntents.put("citesAsSourceDocument","Q111736247")
 citoIntents.put("citesForInformation","Q96479970")
+citoIntents.put("compiles","Q117121918")
 citoIntents.put("confirms","Q96480427")
+citoIntents.put("containsAssertionFrom","Q111736383")
+citoIntents.put("corrects","Q111330212")
+citoIntents.put("credits","Q117121919")
 citoIntents.put("critiques","Q105624924")
+citoIntents.put("derides","Q117121920")
+citoIntents.put("describes","Q117358004")
+citoIntents.put("disagreesWith","Q107687829")
+citoIntents.put("discribes","Q117121922")
 citoIntents.put("discusses","Q96471822")
 citoIntents.put("disputes","Q117121923")
+citoIntents.put("documents","Q117121924")
 citoIntents.put("extends","Q96472100")
+citoIntents.put("includesExcerptFrom","Q117121925")
 citoIntents.put("includesQuotationFrom","Q117121926")
+citoIntents.put("isCompiledBy","Q138937016")
+citoIntents.put("linksTo","Q117121927")
+citoIntents.put("obtainsBackgroundFrom","Q96480394")
+citoIntents.put("obtainsSupportFrom","Q115470993")
+citoIntents.put("parodies","Q117121928")
+citoIntents.put("plagiarizes","Q117121929")
+citoIntents.put("providesDataFor","Q138850137")
+citoIntents.put("providesMethodFor","Q116297119")
+citoIntents.put("providesQuotationFor","Q127789090")
+citoIntents.put("qualifies","Q117121930")
+citoIntents.put("refutes","Q107710355")
 citoIntents.put("repliesTo","Q107438271")
+citoIntents.put("retracts","Q111329371")
+citoIntents.put("reviews","Q117121931")
+citoIntents.put("ridicules","Q117121932")
+citoIntents.put("sharesAuthorWith","Q116297154")
+citoIntents.put("speculatesOn","Q117121933")
 citoIntents.put("supports","Q110977857")
 citoIntents.put("updates","Q96473628")
-citoIntents.put("usesMethodIn","Q96472102")
+citoIntents.put("usesConclusionsFrom","Q117121934")
 citoIntents.put("usesDataFrom","Q101149476")
+citoIntents.put("usesMethodIn","Q96472102")
 
 sparql = """
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
