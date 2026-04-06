@@ -24,9 +24,9 @@
 
 // Bacting config
 // @Grab(group='org.openscience.cdk', module='cdk-silent', version='2.11')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.5')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.5')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.5')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.11-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.11-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.11-SNAPSHOT')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
@@ -163,7 +163,7 @@ doisToProcess.each { doiToProcess ->
   sleep(125)
   citedDOIs = new java.util.HashSet()
   if (!options.i) {
-    oci2URL = new URL("https://opencitations.net/index/api/v1/references/${doiToProcess}")
+    oci2URL = new URL("https://api.opencitations.net/index/v2/references/doi:${doiToProcess}?require=doi&sort=desc(date)")
     println "# Fetching ${doiToProcess} from ${oci2URL} ..."
     try {
       data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
@@ -181,10 +181,10 @@ doisToProcess.each { doiToProcess ->
       }
 
       // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
-      sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
+      sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
       if (bioclipse.isOnline()) {
         rawResults = bioclipse.sparqlRemote(
-          "https://query-scholarly.wikidata.org/sparql", sparql
+          "https://qlever.dev/api/wikidata", sparql
         )
         results = rdf.processSPARQLXML(rawResults, sparql)
       }
@@ -206,9 +206,9 @@ doisToProcess.each { doiToProcess ->
 
       if (options.report) {
         // report all the DOIs that are not in Wikidata
-        sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
+        sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
         if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://query-scholarly.wikidata.org/sparql", sparql  )
+          rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
           results = rdf.processSPARQLXML(rawResults, sparql)
         }
         for (i=1;i<=results.rowCount;i++) {
@@ -226,13 +226,16 @@ doisToProcess.each { doiToProcess ->
   sleep(125)  
   citingDOIs = new ArrayList()
   if (!options.o) {
-    ociURL = new URL("https://opencitations.net/index/api/v1/citations/${doiToProcess}")
+    ociURL = new URL("https://api.opencitations.net/index/v2/citations/doi:${doiToProcess}?require=doi&sort=desc(date)")
     println "# Fetching ${doiToProcess} from ${ociURL} ..."
     try {
       data = new groovy.json.JsonSlurper().parseText(ociURL.text)
       data.each { citation -> citingDOIs.add(citation.citing.toUpperCase()) }
     } catch (IOException exception) {
       println("# HTTP error: ${exception.message}")
+    } catch (groovy.json.JsonException exception) {
+      println("# JSON error: ${exception.message}")
+      println(ociURL.text)
     }
     println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
 
@@ -252,9 +255,9 @@ doisToProcess.each { doiToProcess ->
       citingDOIs.each { doi ->
         values += "\"${doi.toUpperCase()}\" \n"
       }
-      sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
+      sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
       if (bioclipse.isOnline()) {
-        rawResults = bioclipse.sparqlRemote("https://query-scholarly.wikidata.org/sparql", sparql  )
+        rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
         results = rdf.processSPARQLXML(rawResults, sparql)
       }
       // make a map
@@ -273,9 +276,9 @@ doisToProcess.each { doiToProcess ->
 
       if (options.report) {
         // report all the DOIs that are not in Wikidata
-        sparql = "SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
+        sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
         if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://query-scholarly.wikidata.org/sparql", sparql  )
+          rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
           results = rdf.processSPARQLXML(rawResults, sparql)
         }
         for (i=1;i<=results.rowCount;i++) {
