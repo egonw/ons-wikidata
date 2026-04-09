@@ -253,9 +253,9 @@ doisToProcess.each { doiToProcess ->
     try {
       data = new groovy.json.JsonSlurper().parseText(ociURL.text)
       data.each { citation ->
-        citedString = citation.cited
-        if (countDOIs(citedString) == 1) {
-          citedDOIs.add(getDOI(citedString).toUpperCase())
+        citingString = citation.citing
+        if (countDOIs(citingString) == 1) {
+          citingDOIs.add(getDOI(citingString).toUpperCase())
         }
       }
     } catch (IOException exception) {
