@@ -154,6 +154,23 @@ if (options.i) println "# Only reporting citing articles"
 
 if (options.report) println "# Reporting missing DOIs in the file ${options.report}"
 
+// there can be more than one DOI in a "cited" field, e.g. for oci:06503195034-061903893070:
+// "cited": "omid:br/061903893070 doi:10.1038/485314a doi:10.1038/nature11085 doi:10.17615/qe7c-h860 pmid:22596150 pmid:22596163
+def countDOIs(String ocCitedString) {
+  int count = 0
+  for (cited in ocCitedString.split(" ")) {
+    if (cited.startsWith("doi:")) count = count + 1
+  }
+  return count
+}
+
+// a "cited" field contains multiple IDs, e.g. "cited": "omid:br/062401953635 doi:10.1007/s00894-010-0850-1 openalex:W1970144678 pmid:20853183"
+def getDOI(String ocCitedString) {
+  for (cited in ocCitedString.split(" ")) {
+    if (cited.startsWith("doi:")) return cited.substring(4)
+  }
+}
+
 missingDOIs = new java.util.HashSet()
 println "# Processing ${doisToProcess.size()} DOIs"
 doisToProcess.each { doiToProcess ->
@@ -169,11 +186,8 @@ doisToProcess.each { doiToProcess ->
       data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
       data2.each { citation ->
         citedString = citation.cited
-        for (cited in citedString.split(" ")) {
-          if (cited.startsWith("doi:")) {
-            cited = cited.substring(4)
-            citedDOIs.add(cited.toUpperCase())
-          }
+        if (countDOIs(citedString) == 1) {
+          citedDOIs.add(getDOI(citedString).toUpperCase())
         }
       }
     } catch (IOException exception) {
@@ -240,11 +254,8 @@ doisToProcess.each { doiToProcess ->
       data = new groovy.json.JsonSlurper().parseText(ociURL.text)
       data.each { citation ->
         citedString = citation.cited
-        for (cited in citedString.split(" ")) {
-          if (cited.startsWith("doi:")) {
-            cited = cited.substring(4)
-            citedDOIs.add(cited.toUpperCase())
-          }
+        if (countDOIs(citedString) == 1) {
+          citedDOIs.add(getDOI(citedString).toUpperCase())
         }
       }
     } catch (IOException exception) {
