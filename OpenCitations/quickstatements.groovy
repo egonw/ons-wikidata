@@ -160,14 +160,22 @@ doisToProcess.each { doiToProcess ->
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-  sleep(125)
+  sleep(250)
   citedDOIs = new java.util.HashSet()
   if (!options.i) {
-    oci2URL = new URL("https://api.opencitations.net/index/v2/references/doi:${doiToProcess}?require=doi&sort=desc(date)")
+    oci2URL = new URL("https://api.opencitations.net/index/v2/references/doi:${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${oci2URL} ..."
     try {
       data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
-      data2.each { citation -> citedDOIs.add(citation.cited.toUpperCase()) }
+      data2.each { citation ->
+        citedString = citation.cited
+        for (cited in citedString.split(" ")) {
+          if (cited.startsWith("doi:")) {
+            cited = cited.substring(4)
+            citedDOIs.add(cited.toUpperCase())
+          }
+        }
+      }
     } catch (IOException exception) {
       println("# HTTP error: ${exception.message}")
     }
@@ -175,13 +183,13 @@ doisToProcess.each { doiToProcess ->
 
     // cited papers
     if (citedDOIs.size() <= 10000) {
-      values = "\"${doiToProcess}\" \n" // we also need a QID for the citing article
+      values = "  \"${doiToProcess}\" \n" // we also need a QID for the citing article
       citedDOIs.each { doi ->
-        values += "\"${doi.toUpperCase()}\" \n"
+        values += "  \"${doi.toUpperCase()}\" \n"
       }
 
       // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
-      sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
+      sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
       if (bioclipse.isOnline()) {
         rawResults = bioclipse.sparqlRemote(
           "https://qlever.dev/api/wikidata", sparql
@@ -223,14 +231,22 @@ doisToProcess.each { doiToProcess ->
     }
   }
 
-  sleep(125)  
+  sleep(250)  
   citingDOIs = new ArrayList()
   if (!options.o) {
-    ociURL = new URL("https://api.opencitations.net/index/v2/citations/doi:${doiToProcess}?require=doi&sort=desc(date)")
+    ociURL = new URL("https://api.opencitations.net/index/v2/citations/doi:${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${ociURL} ..."
     try {
       data = new groovy.json.JsonSlurper().parseText(ociURL.text)
-      data.each { citation -> citingDOIs.add(citation.citing.toUpperCase()) }
+      data.each { citation ->
+        citedString = citation.cited
+        for (cited in citedString.split(" ")) {
+          if (cited.startsWith("doi:")) {
+            cited = cited.substring(4)
+            citedDOIs.add(cited.toUpperCase())
+          }
+        }
+      }
     } catch (IOException exception) {
       println("# HTTP error: ${exception.message}")
     } catch (groovy.json.JsonException exception) {
@@ -253,9 +269,9 @@ doisToProcess.each { doiToProcess ->
       // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
       values = "\"${doiToProcess}\" \n" // we also need a QID for the cited article
       citingDOIs.each { doi ->
-        values += "\"${doi.toUpperCase()}\" \n"
+        values += "  \"${doi.toUpperCase()}\" \n"
       }
-      sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
+      sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
       if (bioclipse.isOnline()) {
         rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
         results = rdf.processSPARQLXML(rawResults, sparql)
