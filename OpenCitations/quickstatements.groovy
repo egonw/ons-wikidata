@@ -24,13 +24,14 @@
 
 // Bacting config
 // @Grab(group='org.openscience.cdk', module='cdk-silent', version='2.11')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.11-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.11-SNAPSHOT')
-@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.11-SNAPSHOT')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.12')
+@Grab(group='io.github.egonw.bacting', module='net.bioclipse.managers.wikidata', version='1.0.12')
 
 import groovy.cli.commons.CliBuilder
 import java.util.stream.Collectors
 import java.io.IOException
+import groovy.json.JsonException
 
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
@@ -183,13 +184,15 @@ doisToProcess.each { doiToProcess ->
     oci2URL = new URL("https://api.opencitations.net/index/v2/references/doi:${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${oci2URL} ..."
     try {
-      data2 = new groovy.json.JsonSlurper().parseText(oci2URL.text)
+      data2 = new groovy.json.JsonSlurper().parse(oci2URL.openStream())
       data2.each { citation ->
         citedString = citation.cited
         if (countDOIs(citedString) == 1) {
           citedDOIs.add(getDOI(citedString).toUpperCase())
         }
       }
+    } catch (JsonException exception) {
+      println("# JSON error")
     } catch (IOException exception) {
       println("# HTTP error: ${exception.message}")
     }
@@ -251,18 +254,17 @@ doisToProcess.each { doiToProcess ->
     ociURL = new URL("https://api.opencitations.net/index/v2/citations/doi:${doiToProcess}")
     println "# Fetching ${doiToProcess} from ${ociURL} ..."
     try {
-      data = new groovy.json.JsonSlurper().parseText(ociURL.text)
+      data = new groovy.json.JsonSlurper().parse(ociURL.openStream())
       data.each { citation ->
         citingString = citation.citing
         if (countDOIs(citingString) == 1) {
           citingDOIs.add(getDOI(citingString).toUpperCase())
         }
       }
+    } catch (groovy.json.JsonException exception) {
+      println("# JSON error")
     } catch (IOException exception) {
       println("# HTTP error: ${exception.message}")
-    } catch (groovy.json.JsonException exception) {
-      println("# JSON error: ${exception.message}")
-      println(ociURL.text)
     }
     println "# Found citing DOIs for ${doiToProcess}: ${citingDOIs.size()}"
 
