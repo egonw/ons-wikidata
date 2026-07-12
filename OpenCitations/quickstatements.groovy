@@ -42,6 +42,8 @@ wikidata = new net.bioclipse.managers.WikidataManager(workspaceRoot);
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+sleepPeriod = 300  // milliseconds
+
 def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
 cli.t(longOpt: 'token', args:1, argName:'token', 'OpenCitations Access Token')
@@ -178,7 +180,7 @@ doisToProcess.each { doiToProcess ->
   doiToProcess = doiToProcess.toUpperCase()
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-  sleep(250)
+  sleep(sleepPeriod)
   citedDOIs = new java.util.HashSet()
   if (!options.i) {
     oci2URL = new URL("https://api.opencitations.net/index/v2/references/doi:${doiToProcess}")
@@ -248,7 +250,7 @@ doisToProcess.each { doiToProcess ->
     }
   }
 
-  sleep(250)  
+  sleep(sleepPeriod)  
   citingDOIs = new ArrayList()
   if (!options.o) {
     ociURL = new URL("https://api.opencitations.net/index/v2/citations/doi:${doiToProcess}")
