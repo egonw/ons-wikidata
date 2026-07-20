@@ -33,6 +33,8 @@ import java.util.stream.Collectors
 import java.io.IOException
 import groovy.json.JsonException
 
+wikidataEP = "https://qlever.dev/api/wikidata"
+
 workspaceRoot = ".."
 ui = new net.bioclipse.managers.UIManager(workspaceRoot);
 bioclipse = new net.bioclipse.managers.BioclipseManager(workspaceRoot);
@@ -42,7 +44,7 @@ wikidata = new net.bioclipse.managers.WikidataManager(workspaceRoot);
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-sleepPeriod = 300  // milliseconds
+sleepPeriod = 700  // milliseconds
 
 def cli = new CliBuilder(usage: 'quickstatements.groovy')
 cli.h(longOpt: 'help', 'print this message')
@@ -210,9 +212,7 @@ doisToProcess.each { doiToProcess ->
       // find QIDs for articles citing the focus article, but not if they already cite it in Wikidata (MINUS clause)
       sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n${values} }\n ?work wdt:P356 ?doi . MINUS { ?citingWork wdt:P356 \"${doiToProcess}\" ; wdt:P2860 ?work }\n}"
       if (bioclipse.isOnline()) {
-        rawResults = bioclipse.sparqlRemote(
-          "https://qlever.dev/api/wikidata", sparql
-        )
+        rawResults = bioclipse.sparqlRemote(wikidataEP, sparql)
         results = rdf.processSPARQLXML(rawResults, sparql)
       }
 
@@ -235,7 +235,7 @@ doisToProcess.each { doiToProcess ->
         // report all the DOIs that are not in Wikidata
         sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
         if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
+          rawResults = bioclipse.sparqlRemote(wikidataEP, sparql  )
           results = rdf.processSPARQLXML(rawResults, sparql)
         }
         for (i=1;i<=results.rowCount;i++) {
@@ -288,7 +288,7 @@ doisToProcess.each { doiToProcess ->
       }
       sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n${values} }\n ?work wdt:P356 ?doi . MINUS { ?work wdt:P2860/wdt:P356 \"${doiToProcess}\" }\n}"
       if (bioclipse.isOnline()) {
-        rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
+        rawResults = bioclipse.sparqlRemote(wikidataEP, sparql  )
         results = rdf.processSPARQLXML(rawResults, sparql)
       }
       // make a map
@@ -309,7 +309,7 @@ doisToProcess.each { doiToProcess ->
         // report all the DOIs that are not in Wikidata
         sparql = "PREFIX wdt: <http://www.wikidata.org/prop/direct/> SELECT DISTINCT ?work ?doi WHERE {\n VALUES ?doi {\n ${values} }\n ?work wdt:P356 ?doi .\n}"
         if (bioclipse.isOnline()) {
-          rawResults = bioclipse.sparqlRemote("https://qlever.dev/api/wikidata", sparql  )
+          rawResults = bioclipse.sparqlRemote(wikidataEP, sparql  )
           results = rdf.processSPARQLXML(rawResults, sparql)
         }
         for (i=1;i<=results.rowCount;i++) {
