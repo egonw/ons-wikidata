@@ -180,6 +180,8 @@ missingDOIs = new java.util.HashSet()
 println "# Processing ${doisToProcess.size()} DOIs"
 doisToProcess.each { doiToProcess ->
   doiToProcess = doiToProcess.toUpperCase()
+  if ("UNAVAILABLE" == doiToProcess) return;
+  if ("" == doiToProcess) return;
   String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
   sleep(sleepPeriod)
