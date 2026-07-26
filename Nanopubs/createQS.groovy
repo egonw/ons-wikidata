@@ -152,6 +152,10 @@ for (row in 1..npResults.getRowCount()) {
   citingDOI = "10." + npResults.get(row, "subj").split("10\\.")[1].toUpperCase()
   intent = npResults.get(row, "citationrel").replace("http://purl.org/spar/cito/", "")
   citedDOI = "10." + npResults.get(row, "obj").split("10\\.")[1].toUpperCase()
+  if (citedDOI == citingDOI) {
+     println "# == Self-citing NanoPubicliation: ${citingDOI} ${intent} ${citedDOI}"
+     return
+  }
   date = npResults.get(row, "date")
   println "# == NanoPubicliation: ${citingDOI} (${doiToWikidata.get(citingDOI)}) ${intent} ${citedDOI} (${doiToWikidata.get(citedDOI)})"
   sparql = """PREFIX p: <http://www.wikidata.org/prop/>
