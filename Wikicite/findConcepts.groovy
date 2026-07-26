@@ -15,9 +15,9 @@
 // Changelog:
 //
 // 2018-09-01 First upload to MyExperiment.org
-@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.7')
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.7')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.7')
+@Grab(group='io.github.egonw.bacting', module='managers-cdk', version='1.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.12')
 
 import groovy.cli.commons.CliBuilder
 

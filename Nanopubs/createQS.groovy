@@ -1,8 +1,8 @@
 // Copyright (C) 2024  Egon Willighagen
 // License: MIT
 // If you use this software, please check the CITATION.cff file 
-@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.10')
-@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.10')
+@Grab(group='io.github.egonw.bacting', module='managers-ui', version='1.0.12')
+@Grab(group='io.github.egonw.bacting', module='managers-rdf', version='1.0.12')
 
 import java.util.*
 import java.text.SimpleDateFormat;
