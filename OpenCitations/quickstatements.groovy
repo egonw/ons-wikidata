@@ -115,7 +115,7 @@ if (options.list) {
 if (options.author) {
   doiList = wikidata.getDOIsForWorksOfAuthor(options.a)
   if (doiList.size() == 0) {
-    println("Error: No works found in Wikidata for author ${options.author}")
+    println("Info: No works found in Wikidata for author ${options.author}")
     System.exit(-1)
   }
   doisToProcess = doiList
